@@ -6,7 +6,7 @@ import os
 from datetime import datetime
 
 # --- CONFIGURATION ---
-SERIAL_PORT = '/dev/ttyACM0'  # Verify with 'ls /dev/ttyACM*'
+SERIAL_PORT = '/dev/ttyACM0' 
 BAUD_RATE = 115200
 CSV_FILENAME = "../data/raw/portenta_data_log.csv"
 
@@ -66,7 +66,6 @@ def run_acquisition():
                         print(f"{ts:<20} | {temp:<8} | {hum:<8} | {gas:<10} | {accel_str}")
 
                         # --- Save to CSV ---
-                        # We use the persistent variables to ensure synchronization
                         writer.writerow([ts, temp, hum, gas, acc_x, acc_y, acc_z])
                         csv_file.flush() 
 
