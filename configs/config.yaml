@@ -1,0 +1,13 @@
+system:
+  serial_port: '/dev/ttyACM0'
+  baud_rate: 115200
+  temp_threshold: 23.0
+  dataset_version: "v1.0"
+
+experiment:
+  # Cenários: D0 (Normal), D1 (Temp), D2 (Mounting), D3 (Regime), D4 (Noise), D5 (Combined)
+  scenario_id: "D0" 
+  window_size: 100  # Número de amostras para o buffer
+  
+paths:
+  raw_data_dir: "../data/raw/"

@@ -10,15 +10,15 @@ TEMP_THRESHOLD = 23.0
 
 # --- GPIO SETUP ---
 # LEDs
-green_led = LED(27)
-red_led = LED(17)
+green_led = LED(17)
+red_led = LED(27)
 
 # Motor driver
 motor_BI = LED(23)
 motor_FI = LED(24)
 
 # Button
-button = Button(25)
+button = Button(22)
 
 # --- SYSTEM STATE ---
 system_enabled = False

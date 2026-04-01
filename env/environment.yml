@@ -1,0 +1,15 @@
+name: driftsense
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - pyserial
+  - pyyaml
+  - numpy
+  - scipy
+  - pandas
+  - pip
+  - pip:
+    - gpiozero
+    - colorama
