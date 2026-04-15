@@ -4,73 +4,68 @@ import re
 import csv
 import os
 import yaml
-import numpy as np
 from datetime import datetime
-from gpiozero import LED, Button
-from collections import deque
+from gpiozero import LED, Button, Motor
 from colorama import Fore, Style, init
 
 init(autoreset=True)
 
 # --- CARREGAR CONFIGURAÇÃO ---
 CONFIG_PATH = "../configs/config.yaml"
-with open(CONFIG_PATH, 'r') as f:
-    config = yaml.safe_load(f)
+if os.path.exists(CONFIG_PATH):
+    with open(CONFIG_PATH, 'r') as f:
+        config = yaml.safe_load(f)
+else:
+    config = {
+        'experiment': {'scenario_id': 'RAW_DATA'},
+        'system': {'dataset_version': 'v1', 'serial_port': '/dev/ttyACM0', 'baud_rate': 115200},
+        'paths': {'raw_data_dir': '../data/raw'}
+    }
 
 SCENARIO = config['experiment']['scenario_id']
 VERSION = config['system']['dataset_version']
-WINDOW_SIZE = config['experiment']['window_size'] # 100
 RAW_DIR = config['paths']['raw_data_dir']
-CSV_FILENAME = os.path.join(RAW_DIR, f"dataset_{SCENARIO}_{VERSION}.csv")
+CSV_FILENAME = os.path.join(RAW_DIR, f"dataset_{SCENARIO}_{VERSION}_raw.csv")
 
 # --- GPIO ---
-green_led, red_led = LED(17), LED(27)
-motor_BI, motor_FI = LED(23), LED(24)
-button = Button(22)
+led_green, led_red = LED(17, active_high=False), LED(27, active_high=False)
+fan = Motor(forward=24, backward=23)
+button = Button(22, pull_up=False)
 
 # --- ESTADO ---
 system_enabled = False
-accel_buffer = deque(maxlen=WINDOW_SIZE)
-window_count = 0
-
-def calculate_rms(buffer):
-    """Calcula RMS (Root Mean Square)."""
-    data = np.array(buffer, dtype=float)
-    return np.sqrt(np.mean(data**2, axis=0))
+sample_count = 0
 
 def toggle_system():
     global system_enabled
     system_enabled = not system_enabled
-    green_led.value = system_enabled
-    red_led.value = not system_enabled
-
+    if system_enabled:
+        led_green.on(); led_red.off()
+        print(f"\n{Fore.GREEN}[SISTEMA ATIVADO] Ventoinha ligada a 50%. A gravar raw a 2Hz...{Style.RESET_ALL}")
+    else:
+        led_green.off(); led_red.on()
+        fan.stop()
+        print(f"\n{Fore.RED}[SISTEMA DESATIVADO] Ventoinha parada.{Style.RESET_ALL}")
 
 button.when_pressed = toggle_system
 
 def main():
-    global window_count
+    global sample_count
     os.makedirs(RAW_DIR, exist_ok=True)
     
-    # Validação de integridade do dataset
-    if os.path.exists(CSV_FILENAME):
-        with open(CSV_FILENAME, 'r') as f:
-            window_count = max(0, sum(1 for _ in f) - 1)
+    # --- Cronómetro para os 0.5 segundos ---
+    ultimo_tempo_gravacao = time.time() 
 
     try:
         ser = serial.Serial(config['system']['serial_port'], config['system']['baud_rate'], timeout=0.1)
         
         with open(CSV_FILENAME, mode='a', newline='') as csv_file:
             writer = csv.writer(csv_file)
-            if window_count == 0:
-                # Cabeçalho do CSV atualizado
-                writer.writerow(["Timestamp", "Scenario", "Temp", "Hum", "AccX_RMS", "AccY_RMS", "AccZ_RMS", "SysActive", "WindowCount"])
+            writer.writerow(["Timestamp", "Scenario", "Temp", "Hum", "AccX", "AccY", "AccZ", "Sample"])
 
-            print(f"{Fore.WHITE}{Style.BRIGHT}Monitor DriftSense-PM: {SCENARIO}")
-            print(f"A aguardar preenchimento de janelas ({WINDOW_SIZE} amostras)...")
+            print(f"{Fore.CYAN}{Style.BRIGHT}=== DriftSense: RAW a 2Hz (Ventoinha Controlada Apenas Pelo Botão) ===")
             print("-" * 105)
-            
-            # Cabeçalho do Terminal atualizado com SYS e COUNT
-            print(f"{'TIMESTAMP':<10} | {'SCEN':<5} | {'TEMP':<5} | {'HUM':<5} | {'RMS_X':<7} | {'RMS_Y':<7} | {'RMS_Z':<7} | {'SYS':<3} | {'COUNT'}")
+            print(f"{'TIMESTAMP':<10} | {'TEMP':<5} | {'HUM':<5} | {'ACC_X':<7} | {'ACC_Y':<7} | {'ACC_Z':<7} | {'SAMPLE'}")
 
             temp, hum = 0.0, 0.0
 
@@ -79,45 +74,46 @@ def main():
                     raw_line = ser.readline().decode('utf-8', errors='ignore').strip()
                     nums = re.findall(r"[-+]?\d*\.\d+|\d+", raw_line)
 
+                    # 1. Atualizar Temperatura/Humidade
                     if "TEMP" in raw_line.upper() and len(nums) >= 2:
                         temp, hum = float(nums[0]), float(nums[1])
 
-                    # Mantive apenas "VIBRA" para contornar problemas com o "Ç" e o "Ã"
-                    elif "VIBRA" in raw_line.upper() and len(nums) >= 3:
-                        accel_buffer.append([float(nums[0]), float(nums[1]), float(nums[2])])
-
-                        # Retirada a condição 'system_enabled' daqui para gravar sempre (com a flag 0 ou 1)
-                        if len(accel_buffer) == WINDOW_SIZE:
-                            rms = calculate_rms(accel_buffer)
+                    # 2. Processar Vibração apenas a cada 0.5s
+                    elif "ACCEL" in raw_line.upper() and len(nums) >= 3:
+                        tempo_atual = time.time()
+                        
+                        # Só entra se a diferença for >= 0.5 segundos
+                        if (tempo_atual - ultimo_tempo_gravacao) >= 0.5:
+                            ultimo_tempo_gravacao = tempo_atual 
+                            
+                            ax, ay, az = float(nums[0]), float(nums[1]), float(nums[2])
                             ts = datetime.now().strftime("%H:%M:%S")
-                            
-                            # Transforma o estado booleano num inteiro (1 para True, 0 para False)
                             sys_state = 1 if system_enabled else 0
+                            sample_count += 1
                             
-                            window_count += 1
+                            # Gravação imediata da amostra pura
+                            writer.writerow([ts, SCENARIO, temp, hum, ax, ay, az, sys_state, sample_count])
                             
-                            # Grava no ficheiro CSV com as novas colunas
-                            writer.writerow([ts, SCENARIO, temp, hum, f"{rms[0]:.2f}", f"{rms[1]:.2f}", f"{rms[2]:.2f}", sys_state, window_count])
+                            # Feedback no terminal - FAN depende APENAS do estado do sistema
+                            #fan_status = "50%" if system_enabled else "OFF"
+                            color = Fore.GREEN if system_enabled else Fore.WHITE
+                            print(f"{ts:<10} | {temp:<5.1f} | {hum:<5.1f} | {ax:<7.2f} | {ay:<7.2f} | {az:<7.2f} | {Fore.YELLOW}{sample_count}")
+                            
+                            # Forçar escrita no disco
                             csv_file.flush()
-                            
-                            # IMPRESSÃO NO TERMINAL com o estado 0/1 e a contagem da janela
-                            print(f"{ts:<10} | {SCENARIO:<5} | {temp:<5.1f} | {hum:<5.1f} | {rms[0]:<7.2f} | {rms[1]:<7.2f} | {rms[2]:<7.2f} | {Fore.GREEN if sys_state else Fore.RED}{sys_state:<3}{Style.RESET_ALL} | {Fore.YELLOW}{window_count}")
 
-                            # Limpa o buffer para iniciar nova janela
-                            accel_buffer.clear()
-
-                # Controlo de Hardware mantém-se igual (só liga motores se estiver ATIVO)
-                if system_enabled and temp > config['system']['temp_threshold']:
-                    motor_BI.on(); motor_FI.off()
+                # --- CONTROLO DA VENTOINHA (Ignora Temperatura) ---
+                if system_enabled:
+                    fan.forward(0.5)
                 else:
-                    motor_BI.off(); motor_FI.off()
+                    fan.stop()
 
                 time.sleep(0.001)
 
     except Exception as e:
         print(f"\n{Fore.RED}Erro: {e}")
     finally:
-        motor_BI.off(); motor_FI.off()
+        fan.stop()
         if 'ser' in locals(): ser.close()
 
 if __name__ == "__main__":
