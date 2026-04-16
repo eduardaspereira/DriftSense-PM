@@ -16,9 +16,10 @@ if os.path.exists(CONFIG_PATH):
     with open(CONFIG_PATH, 'r') as f:
         config = yaml.safe_load(f)
 else:
+    # Fallback default configuration
     config = {
         'experiment': {'scenario_id': 'RAW_DATA'},
-        'system': {'dataset_version': 'v1', 'serial_port': '/dev/ttyACM0', 'baud_rate': 115200},
+        'system': {'dataset_version': 'v1.0', 'serial_port': '/dev/ttyACM0', 'baud_rate': 115200},
         'paths': {'raw_data_dir': '../data/raw'}
     }
 
@@ -53,7 +54,7 @@ def main():
     global sample_count
     os.makedirs(RAW_DIR, exist_ok=True)
     
-    # --- Cronómetro para os 0.5 segundos ---
+    # --- Cronómetro para controlo de I/O ---
     ultimo_tempo_gravacao = time.time() 
 
     try:
@@ -61,11 +62,12 @@ def main():
         
         with open(CSV_FILENAME, mode='a', newline='') as csv_file:
             writer = csv.writer(csv_file)
-            writer.writerow(["Timestamp", "Scenario", "Temp", "Hum", "AccX", "AccY", "AccZ", "Sample"])
+            # CORREÇÃO APLICADA: Cabeçalho alinhado com as variáveis escritas
+            writer.writerow(["Timestamp", "Scenario", "Temp", "Hum", "AccX", "AccY", "AccZ", "SysState", "SampleCount"])
 
-            print(f"{Fore.CYAN}{Style.BRIGHT}=== DriftSense: RAW a 2Hz (Ventoinha Controlada Apenas Pelo Botão) ===")
+            print(f"{Fore.CYAN}{Style.BRIGHT}=== DriftSense: RAW a 2Hz (Controlo Manual) ===")
             print("-" * 105)
-            print(f"{'TIMESTAMP':<10} | {'TEMP':<5} | {'HUM':<5} | {'ACC_X':<7} | {'ACC_Y':<7} | {'ACC_Z':<7} | {'SAMPLE'}")
+            print(f"{'TIMESTAMP':<12} | {'TEMP':<5} | {'HUM':<5} | {'ACC_X':<7} | {'ACC_Y':<7} | {'ACC_Z':<7} | {'SAMPLE'}")
 
             temp, hum = 0.0, 0.0
 
@@ -78,31 +80,27 @@ def main():
                     if "TEMP" in raw_line.upper() and len(nums) >= 2:
                         temp, hum = float(nums[0]), float(nums[1])
 
-                    # 2. Processar Vibração apenas a cada 0.5s
+                    # 2. Processar Vibração
                     elif "ACCEL" in raw_line.upper() and len(nums) >= 3:
                         tempo_atual = time.time()
                         
-                        # Só entra se a diferença for >= 0.5 segundos
+                        # Limitação a 2Hz
                         if (tempo_atual - ultimo_tempo_gravacao) >= 0.5:
                             ultimo_tempo_gravacao = tempo_atual 
                             
                             ax, ay, az = float(nums[0]), float(nums[1]), float(nums[2])
-                            ts = datetime.now().strftime("%H:%M:%S")
+                            # CORREÇÃO APLICADA: Timestamp com milissegundos
+                            ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
                             sys_state = 1 if system_enabled else 0
                             sample_count += 1
                             
-                            # Gravação imediata da amostra pura
                             writer.writerow([ts, SCENARIO, temp, hum, ax, ay, az, sys_state, sample_count])
                             
-                            # Feedback no terminal - FAN depende APENAS do estado do sistema
-                            #fan_status = "50%" if system_enabled else "OFF"
-                            color = Fore.GREEN if system_enabled else Fore.WHITE
-                            print(f"{ts:<10} | {temp:<5.1f} | {hum:<5.1f} | {ax:<7.2f} | {ay:<7.2f} | {az:<7.2f} | {Fore.YELLOW}{sample_count}")
+                            print(f"{ts[-12:]:<12} | {temp:<5.1f} | {hum:<5.1f} | {ax:<7.2f} | {ay:<7.2f} | {az:<7.2f} | {Fore.YELLOW}{sample_count}")
                             
-                            # Forçar escrita no disco
                             csv_file.flush()
 
-                # --- CONTROLO DA VENTOINHA (Ignora Temperatura) ---
+                # --- CONTROLO DA VENTOINHA ---
                 if system_enabled:
                     fan.forward(0.5)
                 else:
