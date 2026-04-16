@@ -3,10 +3,7 @@
 ## 1. Visão Geral
 Este dataset foi recolhido para avaliar pipelines de manutenção preditiva cientes de *concept drift* na *Edge*. Os dados foram gerados usando um Arduino Pro Smart Industry Predictive Maintenance Kit e o sensor Nicla Sense ME, transmitidos para um Raspberry Pi 5.
 
-## 2. Ameaças à Validade e Condições de Amostragem (Threats to Validity)
-Devido a restrições de latência de I/O na ponte de comunicação serial entre o MCU e o Edge Device, a taxa de amostragem física foi limitada a **2 Hz**. Esta limitação atua como um constrangimento intencional, simulando redes industriais legadas (Legacy IoT) de baixa largura de banda. Consequentemente, o estudo foca-se na deteção de *drift* de baixa frequência (como temperatura) e degradação estatística macroscópica.
-
-## 3. Protocolo de Injeção de Falhas (Drift Taxonomy)
+## 2. Protocolo de Injeção de Falhas (Drift Taxonomy)
 A recolha seguiu a taxonomia do projeto, com um total de 1200 janelas de baseline. Os ficheiros foram mapeados de acordo com a nomenclatura oficial.
 
 * **D0 (No Drift - Baseline):** O sensor Nicla Sense ME foi acoplado com abraçadeiras a um motor DC com ventoinha, repousando sobre uma estrutura fixa. Operação estabilizada a 50% da potência máxima durante 1200 janelas.

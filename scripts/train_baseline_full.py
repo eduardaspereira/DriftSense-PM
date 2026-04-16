@@ -1,84 +1,89 @@
+import os
+import yaml
 import pandas as pd
 import numpy as np
-import os
-import joblib
 import matplotlib.pyplot as plt
 import seaborn as sns
-from sklearn.model_selection import StratifiedKFold, cross_val_predict
+from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report, confusion_matrix
-from sklearn.preprocessing import LabelEncoder
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import RandomForestClassifier, VotingClassifier
-from xgboost import XGBClassifier
-from lightgbm import LGBMClassifier
+from sklearn.ensemble import IsolationForest
+from sklearn.svm import OneClassSVM
+from sklearn.neighbors import LocalOutlierFactor
 import warnings
 
-# Silenciar avisos desnecessários para um output limpo
 warnings.filterwarnings('ignore')
 
-# 1. Configurações de Pastas e Ficheiros
-PROCESSED_DIR = '../data/processed/'
-FIGURES_DIR = '../results/figures/'
-METRICS_DIR = '../results/metrics/'
-MODELS_DIR = '../models/'
+# 1. Configurações e Pastas
+CONFIG_PATH = "../configs/config.yaml"
+with open(CONFIG_PATH, 'r') as f:
+    config = yaml.safe_load(f)
 
-for folder in [FIGURES_DIR, METRICS_DIR, MODELS_DIR]:
+PROCESSED_DIR = config['paths']['processed_dir']
+FIGURES_DIR = config['paths']['figures_dir']
+METRICS_DIR = config['paths']['results_dir']
+
+for folder in [FIGURES_DIR, METRICS_DIR]:
     os.makedirs(folder, exist_ok=True)
 
-# Mapeamento oficial dos teus cenários [cite: 15, 89]
-label_map = {
-    'D0': 'NORMAL',
-    'D1': 'TEMP_FAULT',
-    'D2': 'RPM_FAULT',
-    'D3': 'NOISE_FAULT'
-}
+# Convenção Scikit-Learn para Anomalias: 1 = Normal, -1 = Falha/Drift
+target_names = ['Anomalia/Drift (-1)', 'Normal (1)']
 
-# 2. Carregamento de Dados
-print("📂 A carregar janelas de features para o Treino Baseline...")
-data_list = []
+# 2. Carregamento de Dados (Treino apenas com D0)
+print("📂 A carregar dados e preparar o Benchmark...")
+
+# CORREÇÃO: Usar exatamente o nome do ficheiro que está na tua pasta
+caminho_d0 = os.path.join(PROCESSED_DIR, "D0_dataset_features.csv")
+df_d0 = pd.read_csv(caminho_d0)
+
+# Remover colunas não preditivas
+X_d0 = df_d0.drop(['Scenario', 'Timestamp', 'SysState', 'SampleCount'], axis=1, errors='ignore')
+y_d0 = np.ones(len(X_d0)) # 1 para Normal
+
+# Split cronológico do D0 (80% para ensinar a norma, 20% para testar a norma)
+X_train, X_test_normal, y_train, y_test_normal = train_test_split(X_d0, y_d0, test_size=0.2, shuffle=False)
+
+# 3. Carregar os Drifts EXCLUSIVAMENTE para o conjunto de Teste
+test_anomalies = []
 for file in os.listdir(PROCESSED_DIR):
-    prefix = file.split('_')[0]
-    if prefix in label_map:
-        df = pd.read_csv(os.path.join(PROCESSED_DIR, file))
-        df['label'] = label_map[prefix]
-        data_list.append(df)
+    # CORREÇÃO: Apanha todos os ficheiros CSV que NÃO sejam o D0
+    if file.endswith(".csv") and not file.startswith("D0"):
+        df_anom = pd.read_csv(os.path.join(PROCESSED_DIR, file))
+        X_anom = df_anom.drop(['Scenario', 'Timestamp', 'SysState', 'SampleCount'], axis=1, errors='ignore')
+        y_anom = np.full(len(X_anom), -1) # -1 para Anomalia/Drift
+        
+        # Junta aos dados de teste
+        test_anomalies.append((X_anom, y_anom))
 
-df_final = pd.concat(data_list, ignore_index=True)
-X = df_final.drop(['Scenario', 'label'], axis=1)
-y_strings = df_final['label']
+# Concatenar todos os dados de teste (20% do Normal + 100% dos Drifts)
+X_test = pd.concat([X_test_normal] + [anom[0] for anom in test_anomalies], ignore_index=True)
+y_test = np.concatenate([y_test_normal] + [anom[1] for anom in test_anomalies])
 
-# --- SOLUÇÃO PARA O ERRO DO XGBOOST ---
-# Codifica 'NORMAL', 'TEMP_FAULT', etc. em 0, 1, 2, 3
-le = LabelEncoder()
-y = le.fit_transform(y_strings)
-target_names = le.classes_ # Guarda os nomes originais para os relatórios
+print(f"🔬 Divisão Completa:")
+print(f"   -> Treino (100% Normal): {len(X_train)} janelas")
+print(f"   -> Teste (Normais + Drifts): {len(X_test)} janelas")
 
-# 3. Definição dos Modelos [cite: 583, 592]
-lgbm = LGBMClassifier(n_estimators=100, verbose=-1, random_state=42)
-xgb = XGBClassifier(n_estimators=100, random_state=42)
-
+# 4. Definição dos Modelos Não Supervisionados
 models = {
-    "Decision Tree": DecisionTreeClassifier(random_state=42),
-    "Random Forest": RandomForestClassifier(n_estimators=100, random_state=42),
-    "LightGBM": lgbm,
-    "XGBoost": xgb,
-    "Ensemble (LGBM+XGB)": VotingClassifier(
-        estimators=[('lgbm', lgbm), ('xgb', xgb)], voting='soft'
-    )
+    "Isolation Forest": IsolationForest(n_estimators=100, contamination=0.01, random_state=42),
+    "One-Class SVM": OneClassSVM(nu=0.01, kernel="rbf", gamma='scale'),
+    "Local Outlier Factor": LocalOutlierFactor(n_neighbors=20, contamination=0.01, novelty=True)
 }
 
-# 4. K-Fold Cross Validation (K=5) [cite: 480]
-kf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
-print(f"🔬 A iniciar avaliação comparativa (Total: {len(df_final)} janelas)...")
-
+# 5. Loop de Treino e Avaliação
 for name, model in models.items():
     print(f"\n{'='*50}\n# MODELO: {name}\n{'='*40}")
     
-    # Previsões robustas via K-Fold
-    y_pred = cross_val_predict(model, X, y, cv=kf)
+    # Treino apenas nos dados normais
+    if name == "Local Outlier Factor":
+        model.fit(X_train) # LOF precisa do novelty=True para fazer predict depois
+    else:
+        model.fit(X_train)
+        
+    # Previsão sobre o conjunto de teste (Normais + Falhas)
+    y_pred = model.predict(X_test)
     
-    # A) CLASSIFICATION REPORT (Usando target_names para manter o profissionalismo)
-    report_str = classification_report(y, y_pred, target_names=target_names, digits=3)
+    # A) CLASSIFICATION REPORT
+    report_str = classification_report(y_test, y_pred, target_names=target_names, digits=3)
     print("📋 Classification Report:")
     print(report_str)
     
@@ -88,23 +93,16 @@ for name, model in models.items():
         f.write(f"Modelo: {name}\n{report_str}")
     
     # B) MATRIZ DE CONFUSÃO
-    cm = confusion_matrix(y, y_pred)
-    plt.figure(figsize=(10, 8))
+    cm = confusion_matrix(y_test, y_pred, labels=[-1, 1])
+    plt.figure(figsize=(8, 6))
     sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', 
                 xticklabels=target_names, yticklabels=target_names)
-    plt.title(f'Matriz de Confusão: {name}')
-    plt.ylabel('Classe Real')
+    plt.title(f'Matriz de Confusão: {name}\n(Treino 100% Normal vs Teste com Drifts)')
+    plt.ylabel('Classe Real (Física)')
     plt.xlabel('Previsão do Modelo')
     
     fig_path = os.path.join(FIGURES_DIR, f"cm_{name.replace(' ', '_').lower()}.png")
     plt.savefig(fig_path)
     plt.close()
-    
-    # C) GUARDAR O MODELO E O ENCODER (Apenas LightGBM para o Edge)
-    if name == "LightGBM":
-        model.fit(X, y)
-        joblib.dump(model, os.path.join(MODELS_DIR, 'baseline_model.pkl'))
-        joblib.dump(le, os.path.join(MODELS_DIR, 'label_encoder.pkl'))
-        print(f"💾 Modelo e Encoder exportados com sucesso.")
 
-print("\n🚀 PIPELINE CONCLUÍDO! Verifica as pastas 'results' e 'models'.")
+print("\n🚀 BENCHMARK CONCLUÍDO! Imagens e métricas geradas com sucesso.")
