@@ -1,9 +1,9 @@
 Modelo: One-Class SVM
                      precision    recall  f1-score   support
 
-Anomalia/Drift (-1)      0.961     1.000     0.980       595
-         Normal (1)      0.000     0.000     0.000        24
+Anomalia/Drift (-1)      0.974     0.892     0.932       595
+         Normal (1)      0.135     0.417     0.204        24
 
-           accuracy                          0.961       619
-          macro avg      0.481     0.500     0.490       619
-       weighted avg      0.924     0.961     0.942       619
+           accuracy                          0.874       619
+          macro avg      0.555     0.655     0.568       619
+       weighted avg      0.942     0.874     0.903       619

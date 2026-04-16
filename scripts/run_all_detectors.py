@@ -3,149 +3,129 @@ import numpy as np
 import os
 import joblib
 import yaml
-from sklearn.metrics import f1_score
 from scipy.stats import ks_2samp
 import warnings
 
-# Silenciar avisos para o terminal ficar limpo
 warnings.filterwarnings('ignore')
 
-# --- 1. CARREGAR CONFIGURAÇÕES (Obrigatório pela ACM/Plano) ---
+# --- 1. CARREGAR CONFIGURAÇÕES ---
 try:
-    with open('../configs/experiment_config.yaml', 'r') as file:
+    with open('../configs/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
 except FileNotFoundError:
-    print("❌ Erro: Ficheiro '../configs/experiment_config.yaml' não encontrado.")
-    print("Por favor, cria o ficheiro e as pastas conforme o plano.")
+    print("❌ Erro: Ficheiro '../configs/config.yaml' não encontrado.")
     exit()
 
-# Extrair os parâmetros do YAML
 PROCESSED_DIR = config['paths']['processed_dir']
 MODELS_DIR = config['paths']['models_dir']
 RESULTS_DIR = config['paths']['results_dir']
 os.makedirs(RESULTS_DIR, exist_ok=True)
 
 REPETITIONS = config['experiment']['repetitions']
-WINDOW_SIZE = config['experiment']['window_size']
-F1_THRESHOLD = config['detectors']['det1']['f1_threshold']
-PERSISTENCE = config['detectors']['det1']['persistence']
-ALPHA_KS = config['detectors']['det2']['alpha_ks']
+WINDOW_SIZE = config['feature_engineering']['window_size']
+# Leitura direta (verifica se os caminhos no teu yaml estão exatamente assim)
+PERSISTENCE = config.get('detectors', {}).get('det1_error_monitoring', {}).get('persistence', 20)
+ALPHA_KS = config.get('detectors', {}).get('det2_distribution_test', {}).get('alpha_ks', 0.01)
 
-# Mapeamento oficial
-LABEL_MAP = {
-    'D0': 'NORMAL', 'D1': 'TEMP_FAULT', 
-    'D2': 'RPM_FAULT', 'D3': 'NOISE_FAULT', 'D4': 'DRIFT_MIX'
-}
+print(f"⚙️ Parâmetros Carregados: Persistence={PERSISTENCE}, Alpha_KS={ALPHA_KS}, Window={WINDOW_SIZE}")
 
-# --- 2. CARREGAMENTO DE ARTEFACTOS ---
-print("📂 A carregar modelo, encoder e dados de referência...")
+# --- 2. CARREGAMENTO DE ARTEFACTOS (Com Scaler!) ---
+print("📂 A carregar Modelo Vencedor (LOF) e Scaler...")
 try:
     model = joblib.load(os.path.join(MODELS_DIR, 'baseline_model.pkl'))
-    le = joblib.load(os.path.join(MODELS_DIR, 'label_encoder.pkl'))
-    df_ref = pd.read_csv(os.path.join(PROCESSED_DIR, 'D0_dataset_features.csv'))
+    scaler = joblib.load(os.path.join(MODELS_DIR, 'scaler.pkl'))
+    
+    # Referencial D0 para o DET2
+    caminho_ref = [f for f in os.listdir(PROCESSED_DIR) if f.startswith('D0_')][0]
+    df_ref = pd.read_csv(os.path.join(PROCESSED_DIR, caminho_ref))
+    ref_temperatura = df_ref['Temp_Mean'].values 
 except FileNotFoundError as e:
     print(f"❌ Erro: Ficheiros base não encontrados.\n{e}")
     exit()
 
 def simulate_stream(file_name, detector_type):
-    """Simula o fluxo de dados janela a janela."""
     df = pd.read_csv(os.path.join(PROCESSED_DIR, file_name))
-    prefix = file_name.split('_')[0]
-    target_label = LABEL_MAP.get(prefix, 'UNKNOWN')
-    
-    if 'label' not in df.columns:
-        df['label'] = target_label
-
-    features_cols = [c for c in df.columns if c not in ['Scenario', 'label']]
+    features_cols = [c for c in df.columns if c not in ['Scenario', 'Timestamp', 'SysState', 'SampleCount']]
     
     detection_idx = None
-    consecutive_low_f1 = 0
-    preds = []
-    reals = []
+    consecutive_alarms = 0
+    window_data_temp = []
     
     for i in range(len(df)):
+        # 1. Extrair os dados da janela atual
         X_curr = df.iloc[[i]][features_cols]
-        y_real_str = df.iloc[i]['label']
+        temp_curr = df.iloc[i]['Temp_Mean']
         
-        try:
-            y_real_num = le.transform([y_real_str])[0]
-        except:
-            y_real_num = -1 
+        # 2. NORMALIZAR ANTES DE PREVER! (Isto estava a faltar)
+        X_curr_scaled = scaler.transform(X_curr)
+        
+        # O modelo cospe 1 (Normal) ou -1 (Anomalia)
+        y_pred = model.predict(X_curr_scaled)[0]
+        
+        # Atualizar a memória de curto prazo (para o DET2)
+        window_data_temp.append(temp_curr)
+        if len(window_data_temp) > WINDOW_SIZE:
+            window_data_temp.pop(0)
 
-        y_pred = model.predict(X_curr)[0]
-        preds.append(y_pred)
-        reals.append(y_real_num)
-
+        # ---------------- DETECTORES ----------------
         if detector_type == 'DET0':
-            continue
+            continue 
             
         elif detector_type == 'DET1' and detection_idx is None:
-            if i >= WINDOW_SIZE:
-                current_f1 = f1_score(reals[-WINDOW_SIZE:], preds[-WINDOW_SIZE:], average='weighted')
-                if current_f1 < F1_THRESHOLD:
-                    consecutive_low_f1 += 1
-                else:
-                    consecutive_low_f1 = 0
+            if y_pred == -1:
+                consecutive_alarms += 1
+            else:
+                consecutive_alarms = 0
                 
-                if consecutive_low_f1 >= PERSISTENCE:
-                    detection_idx = i
-                    
-        elif detector_type == 'DET2' and detection_idx is None:
-            feature_to_test = features_cols[0] 
-            _, p_val = ks_2samp(df_ref[feature_to_test], X_curr[feature_to_test])
-            if p_val < ALPHA_KS:
+            if consecutive_alarms >= PERSISTENCE:
                 detection_idx = i
+                
+        elif detector_type == 'DET2' and detection_idx is None:
+            if len(window_data_temp) == WINDOW_SIZE:
+                _, p_val = ks_2samp(ref_temperatura, window_data_temp)
+                if p_val < ALPHA_KS:
+                    detection_idx = i
 
-    final_f1 = f1_score(reals, preds, average='weighted')
-    return detection_idx, final_f1
+    return detection_idx
 
-# --- 3. EXECUÇÃO DA CAMPANHA (Com Repetições Estatísticas) ---
-scenarios = [f for f in os.listdir(PROCESSED_DIR) if f.endswith('.csv') and 'features' in f]
+# --- 3. EXECUÇÃO ---
+scenarios = [f for f in os.listdir(PROCESSED_DIR) if f.endswith('.csv') and not f.startswith('D0')] 
+scenarios.insert(0, caminho_ref) # Testar D0 no início
+
 detectors = ['DET0', 'DET1', 'DET2']
 results = []
 
-print(f"🔬 A iniciar simulação ({REPETITIONS} repetições) em {len(scenarios)} ficheiros...")
+print(f"🔬 A iniciar simulação de Drift ({REPETITIONS} repetições)...")
 
 for csv in sorted(scenarios):
+    scenario_name = csv.split('_dataset')[0]
+    
     for det in detectors:
         delays_array = []
-        f1_array = []
-        
-        # Loop obrigatório para validação estatística
         for rep in range(REPETITIONS):
-            idx, f1 = simulate_stream(csv, det)
+            idx = simulate_stream(csv, det)
             delays_array.append(idx if idx is not None else np.nan)
-            f1_array.append(f1)
             
-        # Limpar NaNs para cálculo matemático
         valid_delays = [d for d in delays_array if not pd.isna(d)]
-        
-        # Cálculos de Média e Desvio Padrão
-        mean_delay = np.mean(valid_delays) if valid_delays else "N/D"
+        mean_delay = np.mean(valid_delays) if valid_delays else "No Detection"
         std_delay = np.std(valid_delays) if valid_delays else 0.0
-        mean_f1 = np.mean(f1_array)
         
-        is_fp = 1 if ('D0' in csv and valid_delays) else 0
+        is_fp = 1 if ('D0' in scenario_name and valid_delays) else 0
         
-        scenario_name = csv.split('_dataset')[0]
-        
-        # Guardar log consolidado
         results.append({
             'Scenario': scenario_name,
             'Detector': det,
             'Delay_Mean': round(mean_delay, 2) if isinstance(mean_delay, float) else mean_delay,
             'Delay_Std': round(std_delay, 2),
-            'Final_F1': round(mean_f1, 3),
             'False_Positive': is_fp
         })
 
-# --- 4. EXIBIÇÃO E EXPORTAÇÃO ---
+# --- 4. EXIBIÇÃO ---
 df_res = pd.DataFrame(results)
 print("\n" + "="*70)
-print("📊 RESULTADOS DA MONITORIZAÇÃO DE DRIFT (Média de 5 Repetições)")
+print("📊 RESULTADOS DA DETEÇÃO DE DRIFT (Média de 5 Repetições)")
 print("="*70)
 print(df_res.to_string(index=False))
 
 output_path = os.path.join(RESULTS_DIR, 'drift_results_statistical.csv')
 df_res.to_csv(output_path, index=False)
-print(f"\n✅ Resultados estatísticos guardados em: {output_path}")

@@ -1,19 +1,19 @@
-Scenario,Detector,Delay_Mean,Delay_Std,Final_F1,False_Positive
-D0,DET0,N/D,0.0,1.0,0
-D0,DET1,N/D,0.0,1.0,0
-D0,DET2,N/D,0.0,1.0,0
-D1,DET0,N/D,0.0,1.0,0
-D1,DET1,N/D,0.0,1.0,0
-D1,DET2,0.0,0.0,1.0,0
-D2,DET0,N/D,0.0,1.0,0
-D2,DET1,N/D,0.0,1.0,0
-D2,DET2,0.0,0.0,1.0,0
-D3,DET0,N/D,0.0,1.0,0
-D3,DET1,N/D,0.0,1.0,0
-D3,DET2,N/D,0.0,1.0,0
-D4_D1eD2,DET0,N/D,0.0,0.0,0
-D4_D1eD2,DET1,14.0,0.0,0.0,0
-D4_D1eD2,DET2,0.0,0.0,0.0,0
-D4_D2eD3,DET0,N/D,0.0,0.0,0
-D4_D2eD3,DET1,14.0,0.0,0.0,0
-D4_D2eD3,DET2,0.0,0.0,0.0,0
+Scenario,Detector,Delay_Mean,Delay_Std,False_Positive
+D0,DET0,No Detection,0.0,0
+D0,DET1,No Detection,0.0,0
+D0,DET2,19.0,0.0,1
+D1,DET0,No Detection,0.0,0
+D1,DET1,9.0,0.0,0
+D1,DET2,19.0,0.0,0
+D2,DET0,No Detection,0.0,0
+D2,DET1,18.0,0.0,0
+D2,DET2,19.0,0.0,0
+D3,DET0,No Detection,0.0,0
+D3,DET1,No Detection,0.0,0
+D3,DET2,19.0,0.0,0
+D4_D1eD2,DET0,No Detection,0.0,0
+D4_D1eD2,DET1,9.0,0.0,0
+D4_D1eD2,DET2,19.0,0.0,0
+D4_D2eD3,DET0,No Detection,0.0,0
+D4_D2eD3,DET1,18.0,0.0,0
+D4_D2eD3,DET2,19.0,0.0,0
