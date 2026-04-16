@@ -1,0 +1,55 @@
+Scenario,Detector,Adaptation,Delay_Mean,Latency_ms,Recovery_Time,Final_F1
+D0,DET0,A0,N/D,0.0,Não Recuperou,1.0
+D0,DET0,A1,N/D,0.0,Não Recuperou,1.0
+D0,DET0,A2,N/D,0.0,Não Recuperou,1.0
+D0,DET1,A0,N/D,0.0,Não Recuperou,1.0
+D0,DET1,A1,N/D,0.0,Não Recuperou,1.0
+D0,DET1,A2,N/D,0.0,Não Recuperou,1.0
+D0,DET2,A0,N/D,0.0,Não Recuperou,1.0
+D0,DET2,A1,N/D,0.0,Não Recuperou,1.0
+D0,DET2,A2,N/D,0.0,Não Recuperou,1.0
+D1,DET0,A0,N/D,0.0,Não Recuperou,1.0
+D1,DET0,A1,N/D,0.0,Não Recuperou,1.0
+D1,DET0,A2,N/D,0.0,Não Recuperou,1.0
+D1,DET1,A0,N/D,0.0,Não Recuperou,1.0
+D1,DET1,A1,N/D,0.0,Não Recuperou,1.0
+D1,DET1,A2,N/D,0.0,Não Recuperou,1.0
+D1,DET2,A0,0.0,0.0,Não Recuperou,1.0
+D1,DET2,A1,0.0,0.0,Não Recuperou,1.0
+D1,DET2,A2,0.0,39.88,0.0,1.0
+D2,DET0,A0,N/D,0.0,Não Recuperou,1.0
+D2,DET0,A1,N/D,0.0,Não Recuperou,1.0
+D2,DET0,A2,N/D,0.0,Não Recuperou,1.0
+D2,DET1,A0,N/D,0.0,Não Recuperou,1.0
+D2,DET1,A1,N/D,0.0,Não Recuperou,1.0
+D2,DET1,A2,N/D,0.0,Não Recuperou,1.0
+D2,DET2,A0,0.0,0.0,Não Recuperou,1.0
+D2,DET2,A1,0.0,0.0,Não Recuperou,1.0
+D2,DET2,A2,0.0,39.92,0.0,1.0
+D3,DET0,A0,N/D,0.0,Não Recuperou,1.0
+D3,DET0,A1,N/D,0.0,Não Recuperou,1.0
+D3,DET0,A2,N/D,0.0,Não Recuperou,1.0
+D3,DET1,A0,N/D,0.0,Não Recuperou,1.0
+D3,DET1,A1,N/D,0.0,Não Recuperou,1.0
+D3,DET1,A2,N/D,0.0,Não Recuperou,1.0
+D3,DET2,A0,N/D,0.0,Não Recuperou,1.0
+D3,DET2,A1,N/D,0.0,Não Recuperou,1.0
+D3,DET2,A2,N/D,0.0,Não Recuperou,1.0
+D4_D1eD2,DET0,A0,N/D,0.0,Não Recuperou,1.0
+D4_D1eD2,DET0,A1,N/D,0.0,Não Recuperou,1.0
+D4_D1eD2,DET0,A2,N/D,0.0,Não Recuperou,1.0
+D4_D1eD2,DET1,A0,N/D,0.0,Não Recuperou,1.0
+D4_D1eD2,DET1,A1,N/D,0.0,Não Recuperou,1.0
+D4_D1eD2,DET1,A2,N/D,0.0,Não Recuperou,1.0
+D4_D1eD2,DET2,A0,0.0,0.0,Não Recuperou,1.0
+D4_D1eD2,DET2,A1,0.0,0.0,Não Recuperou,1.0
+D4_D1eD2,DET2,A2,0.0,41.21,0.0,1.0
+D4_D2eD3,DET0,A0,N/D,0.0,Não Recuperou,0.0
+D4_D2eD3,DET0,A1,N/D,0.0,Não Recuperou,0.0
+D4_D2eD3,DET0,A2,N/D,0.0,Não Recuperou,0.0
+D4_D2eD3,DET1,A0,14.0,0.0,Não Recuperou,0.0
+D4_D2eD3,DET1,A1,14.0,0.0,Não Recuperou,0.0
+D4_D2eD3,DET1,A2,14.0,40.52,Não Recuperou,0.0
+D4_D2eD3,DET2,A0,0.0,0.0,Não Recuperou,0.0
+D4_D2eD3,DET2,A1,0.0,0.0,Não Recuperou,0.0
+D4_D2eD3,DET2,A2,0.0,39.33,0.0,0.0

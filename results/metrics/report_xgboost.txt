@@ -1,0 +1,11 @@
+Modelo: XGBoost
+              precision    recall  f1-score   support
+
+ NOISE_FAULT      0.993     0.992     0.992       592
+      NORMAL      0.992     0.995     0.993       593
+   RPM_FAULT      1.000     0.998     0.999       592
+  TEMP_FAULT      1.000     1.000     1.000       593
+
+    accuracy                          0.996      2370
+   macro avg      0.996     0.996     0.996      2370
+weighted avg      0.996     0.996     0.996      2370
