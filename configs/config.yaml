@@ -1,13 +1,42 @@
+# ==========================================
+# DriftSense-PM: Master Configuration File
+# ==========================================
+
 system:
   serial_port: '/dev/ttyACM0'
   baud_rate: 115200
-  #temp_threshold: 23.0
-  dataset_version: "v0.1"
+  sampling_rate_hz: 2.0
+  dataset_version: "v1.0" # Congelado conforme as regras da Week 4
 
 experiment:
-  # Cenários: D0 (Normal), D1 (Temp), D2 (Mounting), D3 (Regime), D4 (Noise), D5 (Combined)
-  scenario_id: "D3" 
- # window_size: 100  # Número de amostras para o buffer
-  
+  scenario_id: "D0"       # Cenário a correr atualmente (D0, D1, ..., D5)
+  repetitions: 5          # Repetições obrigatórias para validação estatística
+  device: "Raspberry Pi 5 + Arduino Pro Kit"
+
+feature_engineering:
+  window_size: 20         # Tamanho da janela para cálculo de features
+  step_size: 10           # Passo para garantir overlap de 50% (evita leakage)
+
+detectors:
+  det1_error_monitoring:
+    f1_threshold: 0.85
+    persistence: 5        # Número de janelas sustentadas abaixo do threshold
+  det2_distribution_test:
+    alpha_ks: 0.01        # Nível de significância para o Teste Kolmogorov-Smirnov
+
+adaptation:
+  a1_periodic_retrain:
+    retrain_interval: 50  # Retreina a cada 50 janelas independentemente do erro
+  a2_lightweight:
+    fine_tune_trees: 10   # Adiciona apenas 10 árvores novas ao modelo
+    buffer_size: 20       # Tamanho da memória recente (janelas) usada para adaptar
+
+metrics:
+  recovery_threshold: 0.85
+
 paths:
   raw_data_dir: "../data/raw/"
+  processed_dir: "../data/processed/"
+  models_dir: "../models/"
+  results_dir: "../results/metrics/"
+  figures_dir: "../results/figures/"

@@ -8,7 +8,7 @@ from datetime import datetime
 from gpiozero import LED, Button, Motor
 from colorama import Fore, Style, init
 
-init(autoreset=True)
+init(autoreset=True)    
 
 # --- CARREGAR CONFIGURAÇÃO ---
 CONFIG_PATH = "../configs/config.yaml"
