@@ -142,27 +142,20 @@ for csv in sorted(scenarios):
             # Não faz sentido testar A2 (Reativo) se o detetor for DET0 (Cego)
             if adapt == 'A2' and det == 'DET0':
                 continue
-                
-            delays, latencies, recoveries = [], [], []
             
+            # CORREÇÃO: Guardar cada repetição como linha separada (não apenas média)
             for rep in range(REPETITIONS):
                 idx, lat, rec = simulate_stream(csv, det, adapt)
                 
-                delays.append(idx if idx is not None else np.nan)
-                latencies.append(lat)
-                recoveries.append(rec if rec is not None else np.nan)
-                
-            v_delays = [d for d in delays if not pd.isna(d)]
-            v_recs = [r for r in recoveries if not pd.isna(r)]
-            
-            results.append({
-                'Scenario': scenario_name,
-                'Detector': det,
-                'Adaptation': adapt,
-                'Delay (Janelas)': round(np.mean(v_delays), 1) if v_delays else "N/D",
-                'Latency (ms)': round(np.mean(latencies), 1),
-                'Recovery Time': round(np.mean(v_recs), 1) if v_recs else "Não Recuperou"
-            })
+                results.append({
+                    'Repetition': rep + 1,
+                    'Scenario': scenario_name,
+                    'Detector': det,
+                    'Adaptation': adapt,
+                    'Delay (Janelas)': idx if idx is not None else "N/D",
+                    'Latency (ms)': lat,
+                    'Recovery Time': rec if rec is not None else "Não Recuperou"
+                })
 
 # --- 4. EXPORTAR RESULTADOS ---
 df_res = pd.DataFrame(results)
