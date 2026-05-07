@@ -5,12 +5,18 @@ import joblib
 import yaml
 import time
 import warnings
+import argparse
 from scipy.stats import ks_2samp
 
 # O módulo de adaptações atualizado
 import adaptations 
 
 warnings.filterwarnings('ignore')
+
+# --- 0. PARÂMETROS CLI ---
+parser = argparse.ArgumentParser(description='DriftSense-PM: Full Factorial Evaluation')
+parser.add_argument('--repetitions', type=int, default=None, help='Number of repetitions (overrides config.yaml)')
+args = parser.parse_args()
 
 # --- 1. CARREGAR CONFIGURAÇÕES ---
 try:
@@ -25,7 +31,7 @@ MODELS_DIR = config['paths']['models_dir']
 RESULTS_DIR = config['paths']['results_dir']
 os.makedirs(RESULTS_DIR, exist_ok=True)
 
-REPETITIONS = config['experiment']['repetitions']
+REPETITIONS = args.repetitions if args.repetitions is not None else config['experiment']['repetitions']
 WINDOW_SIZE = config['feature_engineering']['window_size']
 PERSISTENCE = config.get('detectors', {}).get('det1_error_monitoring', {}).get('persistence', 10)
 ALPHA_KS = config.get('detectors', {}).get('det2_distribution_test', {}).get('alpha_ks', 0.001)
@@ -133,6 +139,8 @@ adaptations_list = ['A0', 'A1', 'A2']
 results = []
 
 print(f"🔬 A iniciar Matriz Fatorial... ({REPETITIONS} repetições por combinação)")
+print(f"📊 Total de configurações: {len(scenarios)} cenários × 3 detectores × 3 adaptações = {len(scenarios) * 3 * 3} configs básicas")
+print(f"🔁 Com {REPETITIONS} repetições: {len(scenarios) * 3 * 3 * REPETITIONS} linhas esperadas no output\n")
 
 for csv in sorted(scenarios):
     scenario_name = csv.split('_dataset')[0]
@@ -166,3 +174,13 @@ print(df_res.to_string(index=False))
 
 output_path = os.path.join(RESULTS_DIR, 'full_factorial_results.csv')
 df_res.to_csv(output_path, index=False)
+
+print("\n" + "="*80)
+print(f"✅ MATRIZ FATORIAL COMPLETA!")
+print("="*80)
+print(f"📁 Ficheiro salvo: {output_path}")
+print(f"📈 Linhas no ficheiro: {len(df_res)}")
+print(f"🎯 Cenários únicos: {df_res['Scenario'].nunique()}")
+print(f"🔍 Detectores: {', '.join(df_res['Detector'].unique())}")
+print(f"⚙️  Adaptações: {', '.join(df_res['Adaptation'].unique())}")
+print("="*80 + "\n")

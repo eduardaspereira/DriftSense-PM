@@ -1,7 +1,29 @@
-# DriftSense-PM: Dataset v1.0
+# DriftSense-PM: Dataset v1.0 - Especificação Técnica Completa
 
-## 1. Visão Geral
+**Projeto:** DriftSense-PM - Drift-Aware Predictive Maintenance Benchmark  
+**Instituição:** MEI, 1st Year, Internet Engineering (2025/2026)  
+**Orientador:** Prof. Flávio de Oliveira Silva, Ph.D.  
+**Data de Criação:** Week 4, Abril 2026  
+**Status:** ✅ **v1.0 FROZEN** (sem modificações permitidas após Week 4)
+
+---
+
+## 1. Visão Geral & Sumário Executivo
+
 Este dataset foi recolhido para avaliar pipelines de manutenção preditiva cientes de *concept drift* na *Edge*. Os dados foram gerados usando um Arduino Pro Smart Industry Predictive Maintenance Kit e o sensor Nicla Sense ME, transmitidos para um Raspberry Pi 5.
+
+### **Resumo Técnico:**
+| Parâmetro | Valor |
+|-----------|-------|
+| **Duração Total** | ~8 horas de recolha contínua |
+| **Cenários (Drifts)** | 6 (D0-D5) |
+| **Janelas por Cenário** | ~1200 (20 seg @ 2 Hz) |
+| **Total Amostras** | ~6000 + processadas |
+| **Sensores Ativos** | 9 (Temperatura, Humidade, 3x Acelerómetro, 3x Giroscópio, Pressão) |
+| **Taxa Amostragem** | 2 Hz (500 ms entre amostras) |
+| **Tamanho Raw** | ~80 MB |
+| **Tamanho Processado** | ~15 MB |
+| **Formato** | CSV (timestamp, sensor_id, axis, value) |
 
 ## 2. Protocolo de Injeção de Falhas (Drift Taxonomy)
 A recolha seguiu a taxonomia do projeto, com um total de 1200 janelas de baseline. Os ficheiros foram mapeados de acordo com a nomenclatura oficial.

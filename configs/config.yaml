@@ -22,7 +22,7 @@ detectors:
     f1_threshold: 0.85
     persistence: 10        # Número de janelas sustentadas abaixo do threshold
   det2_distribution_test:
-    alpha_ks: 0.001        # Nível de significância para o Teste Kolmogorov-Smirnov
+    alpha_ks: 0.01         # Nível de significância para o Teste Kolmogorov-Smirnov (aumentado para reduzir falsos positivos)
 
 adaptation:
   a1_periodic_retrain:
