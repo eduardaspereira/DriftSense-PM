@@ -9,6 +9,10 @@ Author: Eduardo Aspereira
 Date: May 7, 2026
 """
 
+import sys
+import io
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+
 import pandas as pd
 import numpy as np
 import os
@@ -20,11 +24,10 @@ with open('../configs/config.yaml', 'r') as f:
     config = yaml.safe_load(f)
 
 RESULTS_DIR = config['paths']['results_dir']
-METRICS_DIR = os.path.join(RESULTS_DIR, 'metrics')
 
 def load_factorial_results(filename='full_factorial_results.csv'):
     """Load raw factorial results"""
-    path = os.path.join(METRICS_DIR, filename)
+    path = os.path.join(RESULTS_DIR, filename)
     if not os.path.exists(path):
         raise FileNotFoundError(f"Ficheiro não encontrado: {path}")
     
@@ -142,18 +145,18 @@ def adaptation_comparison(df):
 def save_results(summary, ci, wilcoxon_df, adaptation_df):
     """Save all results to CSV"""
     
-    os.makedirs(METRICS_DIR, exist_ok=True)
+    os.makedirs(RESULTS_DIR, exist_ok=True)
     
-    summary.to_csv(os.path.join(METRICS_DIR, 'full_factorial_summary.csv'))
+    summary.to_csv(os.path.join(RESULTS_DIR, 'full_factorial_summary.csv'))
     print(f"✅ Salvo: full_factorial_summary.csv")
     
-    ci.to_csv(os.path.join(METRICS_DIR, 'confidence_intervals.csv'), index=False)
+    ci.to_csv(os.path.join(RESULTS_DIR, 'confidence_intervals.csv'), index=False)
     print(f"✅ Salvo: confidence_intervals.csv")
     
-    wilcoxon_df.to_csv(os.path.join(METRICS_DIR, 'wilcoxon_tests.csv'), index=False)
+    wilcoxon_df.to_csv(os.path.join(RESULTS_DIR, 'wilcoxon_tests.csv'), index=False)
     print(f"✅ Salvo: wilcoxon_tests.csv")
     
-    adaptation_df.to_csv(os.path.join(METRICS_DIR, 'adaptation_comparison.csv'), index=False)
+    adaptation_df.to_csv(os.path.join(RESULTS_DIR, 'adaptation_comparison.csv'), index=False)
     print(f"✅ Salvo: adaptation_comparison.csv")
 
 def print_summary_report(wilcoxon_df, adaptation_df):

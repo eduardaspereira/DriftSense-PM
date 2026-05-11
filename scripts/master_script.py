@@ -147,9 +147,8 @@ for csv in sorted(scenarios):
     for det in detectors:
         for adapt in adaptations_list:
             
-            # Não faz sentido testar A2 (Reativo) se o detetor for DET0 (Cego)
-            if adapt == 'A2' and det == 'DET0':
-                continue
+            # CORREÇÃO: Incluir DET0+A2 como controlo (sem deteção, mas com adaptação leve periódica)
+            # Isto é necessário para o fatorial completo segundo o workplan
             
             # CORREÇÃO: Guardar cada repetição como linha separada (não apenas média)
             for rep in range(REPETITIONS):
