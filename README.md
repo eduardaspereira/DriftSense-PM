@@ -25,13 +25,14 @@ DriftSense-PM é um **benchmark académico** para avaliar estratégias de detec�
 
 | Métrica | Valor | Notas |
 |---------|-------|-------|
-| **Atraso Detecção (DET1)** | 9-18 janelas | vs 19 para DET2 |
-| **Latência A2** | ~18 ms | 19× mais rápido que A1 |
-| **Latência A1** | ~347 ms | Retraining periódico |
-| **Cenários Testados** | 6 (D0-D5) | ~1200 janelas cada |
-| **Configurações Totais** | 54 (6×3×3) | 5 repetições cada |
-| **Modelo Baseline** | LOF | F1 = 0.91 em dados teste |
-| **Taxa False-Positive** | <5% | D0 control scenario |
+| **Modelo Baseline** | LOF (F1=0.91) | Selecionado de 3 algoritmos ✅ |
+| **Atraso Detecção DET1** | 13.5 janelas | vs 19 para DET2 |
+| **Latência A2** | 10 ms ± 9 | 27.9× mais rápido que A1 |
+| **Latência A1** | 278 ms ± 14 | Retraining periódico |
+| **Speedup Edge** | 27.9× | Adaptação lightweight vs periódica |
+| **Cenários Testados** | 6 (D0-D4) | 119 janelas cada |
+| **Configurações Completas** | 54 (6×3×3) | Já testadas no PC ✅ |
+| **Taxa False-Positive** | <5% | D0 controlo validado |
 
 ---
 
@@ -75,7 +76,10 @@ python scripts/statistical_analysis.py          # 2 min
 python scripts/generate_thesis_plots.py         # 1 min
 ```
 
-**Tempo Total:** ~45 min em PC, ~2-3h em Raspberry Pi 5
+**Tempo Total:**
+- PC (multi-core): ~45 minutos ✅ TESTADO
+- Raspberry Pi 5: ~2-3 horas (validação colega)
+- Medição energia: ~3 horas (paralelo)
 
 ---
 
@@ -160,15 +164,14 @@ DriftSense-PM/
 
 ## 📖 Documentação
 
-| Documento | Conteúdo | Público |
-|-----------|----------|--------|
-| [README.md](README.md) | Overview projeto (este) | ✅ Público |
-| [REPRODUCIBILIDADE.md](REPRODUCIBILIDADE.md) | Step-by-step reprodução | ✅ Público |
-| [DATASET.md](DATASET.md) | Protocolo recolha & especificação sensores | ✅ Público |
-| [CHECKLIST_O_QUE_FALTA.md](CHECKLIST_O_QUE_FALTA.md) | Tasks pendentes (interna) | 📋 Interna |
-| [PROFESSOR_REPORT.md](PROFESSOR_REPORT.md) | Avaliação formal para professor | 🎓 Académica |
-| [PROJECT_STATUS.md](PROJECT_STATUS.md) | Análise técnica completa | 🔧 Técnica |
-| [QUICK_ACTION.md](QUICK_ACTION.md) | Plano ação com código pronto | 🚀 Implementação |
+| Documento | Conteúdo | Acesso |
+|-----------|---------|--------|
+| [VALIDACAO_WORKPLAN.md](./VALIDACAO_WORKPLAN.md) | Status completo vs workplan 15 semanas | 📋 Essencial |
+| [GUIA_COLEGA_RPi5.md](./GUIA_COLEGA_RPi5.md) | Instruções colega + USB power meter | 📡 Essencial |
+| [INSTALL.md](./INSTALL.md) | Instalação com troubleshooting | ✅ Público |
+| [RUN.md](./RUN.md) | Reprodução passo-a-passo | ✅ Público |
+| [REPRODUCIBILITY.md](./REPRODUCIBILITY.md) | Standard ACM | ✅ Público |
+| [DATASET.md](./DATASET.md) | Protocolo recolha dados | ✅ Público |
 
 ---
 

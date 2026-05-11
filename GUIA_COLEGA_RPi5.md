@@ -179,24 +179,228 @@ D4_D2eD3,DET2,A2,5,8,0.02,0.03,22,0.89
 
 ## ⚡ PASSO 4: MEDIÇÃO DE CONSUMO ENERGÉTICO (PARALELO AO PASSO 3)
 
-Enquanto o código está a executar, meça o consumo com o USB power meter.
+Enquanto o código está a executar no PASSO 3, execute medições de energia em tempo real.
 
-### 4.1: Setup do USB Power Meter
+### 4.1: Hardware - USB Power Meter Setup
 
-```bash
-# Conecte o USB power meter entre:
-# AC → USB Power Meter → Adaptador USB-C → Raspberry Pi 5
+**Modelos Comuns Suportados:**
+- Sonoff S31 Lite (WiFi) - Recomendado
+- Keweisi KWS-MX18 (USB) - Alternativa
+- BlitzWolf BW-SHP15 (WiFi)
+- Brennenstuhl PM 231E (Universal)
 
-# Se tiver software de logging (alguns power meters têm):
-# Crie um ficheiro para registar:
-# - Voltage (V)
-# - Current (A)
-# - Power (W)
-# - Tempo (s)
-# - Temperatura CPU (opcional)
+**Ligações:**
+```
+┌─────────────┐     ┌──────────────┐     ┌──────────────┐
+│ AC Power    │ ─── │ USB Power    │ ─── │ USB-C Ada.   │ ─── RPi 5
+│ (220V)      │     │ Meter        │     │ (5V 5A)      │
+└─────────────┘     └──────────────┘     └──────────────┘
+                    [MEDIÇÕES AQUI]
 ```
 
-### 4.2: Monitorize em paralelo
+### 4.2: Monitorização em Paralelo - 3 MÉTODOS
+
+#### Método 1: SOFTWARE DE LOGGING DO POWER METER (Recomendado)
+
+**Para Sonoff S31 Lite / BW-SHP15 (WiFi):**
+
+```bash
+# Terminal 1: Execute o código (Passo 3)
+cd scripts
+python master_script.py --repetitions 5 2>&1 | tee execution_rpi5.log
+
+# Terminal 2: Conecte-se ao power meter e recolha dados
+# Utilize app dedicado (Sonoff eWeLink, etc)
+# Ou via script Python:
+```
+
+**Script Python para Monitorização WiFi:**
+```python
+# monitoring_wifi_meter.py
+import time
+import json
+import requests
+from datetime import datetime
+
+METER_IP = "192.168.1.XXX"  # Altere para IP do seu meter
+INTERVAL = 5  # Recolher dados a cada 5 segundos
+DURATION = 11400  # 3.17 horas (tempo máximo esperado do passo 3)
+
+data = []
+start_time = time.time()
+
+print(f"[{datetime.now()}] Iniciando monitorização de consumo...")
+print(f"IP Power Meter: {METER_IP}")
+print(f"Intervalo: {INTERVAL}s, Duração: ~{DURATION//3600}h")
+print("-" * 70)
+
+try:
+    while time.time() - start_time < DURATION:
+        try:
+            # Exemplar para Sonoff (ajuste conforme seu meter)
+            resp = requests.get(f"http://{METER_IP}/api/power", timeout=5)
+            
+            if resp.status_code == 200:
+                power_data = resp.json()
+                
+                record = {
+                    'timestamp': datetime.now().isoformat(),
+                    'voltage_v': power_data.get('voltage', 0),
+                    'current_a': power_data.get('current', 0),
+                    'power_w': power_data.get('power', 0),
+                    'energy_kwh': power_data.get('energy', 0)
+                }
+                
+                data.append(record)
+                
+                # Print em tempo real
+                print(f"[{record['timestamp']}] "
+                      f"V={record['voltage_v']:.1f}V | "
+                      f"I={record['current_a']:.2f}A | "
+                      f"P={record['power_w']:.1f}W | "
+                      f"E={record['energy_kwh']:.3f}kWh")
+        
+        except Exception as e:
+            print(f"[ERRO] Falha na leitura: {e}")
+        
+        time.sleep(INTERVAL)
+
+except KeyboardInterrupt:
+    print("\n[STOP] Monitorização interrompida pelo utilizador")
+
+# Guardar resultados
+output_file = f"power_measurements_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+with open(output_file, 'w') as f:
+    json.dump(data, f, indent=2)
+
+print(f"\n✅ {len(data)} medições guardadas em '{output_file}'")
+
+# Estatísticas básicas
+if data:
+    powers = [d['power_w'] for d in data if d['power_w'] > 0]
+    print(f"\nESTATÍSTICAS:")
+    print(f"  Potência média: {sum(powers)/len(powers):.1f} W")
+    print(f"  Potência máxima: {max(powers):.1f} W")
+    print(f"  Potência mínima: {min(powers):.1f} W")
+    if data[-1]['energy_kwh'] > 0:
+        print(f"  Energia total: {data[-1]['energy_kwh']:.3f} kWh")
+```
+
+#### Método 2: USB POWER METER COM ECRÃ DIGITAL
+
+**Para Keweisi KWS-MX18 ou Brennenstuhl (com ecrã):**
+
+```bash
+# 1. Conecte o power meter entre AC e RPi5
+# 2. Leia o ecrã manualmente a intervalos:
+#    - Cada 30 minutos: anote V, A, W, Time de funcionamento
+#    - Crie ficheiro manual:
+
+cat > power_log_manual.csv << 'EOF'
+timestamp,voltage_v,current_a,power_w,cumulative_time_min
+00:00,220.2,0.15,33,0
+00:30,220.1,0.82,180,30
+01:00,220.0,0.78,172,60
+01:30,219.9,0.80,176,90
+02:00,220.1,0.15,33,120
+02:30,219.8,0.12,26,150
+03:00,220.0,0.14,31,180
+EOF
+```
+
+#### Método 3: SCRIPT MANUAL + VERIFICAÇÃO
+
+```bash
+# Se o power meter tiver porta USB/serial:
+# 1. Instale pyserial no RPi5:
+pip install pyserial
+
+# 2. Crie script de leitura serial:
+python << 'EOF'
+import serial
+import csv
+from datetime import datetime
+
+PORT = '/dev/ttyUSB0'  # Altere conforme seu sistema
+BAUD = 9600
+
+with serial.Serial(PORT, BAUD, timeout=1) as ser, \
+     open('power_meter_log.csv', 'w') as f:
+    
+    writer = csv.DictWriter(f, fieldnames=['timestamp', 'raw_data'])
+    writer.writeheader()
+    
+    print(f"Lendo dados de {PORT}...")
+    while True:
+        try:
+            line = ser.readline().decode().strip()
+            if line:
+                writer.writerow({
+                    'timestamp': datetime.now().isoformat(),
+                    'raw_data': line
+                })
+        except KeyboardInterrupt:
+            break
+EOF
+```
+
+### 4.3: ANÁLISE DOS DADOS RECOLHIDOS
+
+```python
+# analyze_power_consumption.py
+import json
+import pandas as pd
+import numpy as np
+
+# Ler dados recolhidos
+with open('power_measurements_*.json', 'r') as f:
+    data = json.load(f)
+
+df = pd.DataFrame(data)
+
+print("=" * 70)
+print("ANÁLISE DE CONSUMO ENERGÉTICO - RPi5 DriftSense-PM")
+print("=" * 70)
+
+# Estatísticas
+print("\n📊 ESTATÍSTICAS GERAIS:")
+print(f"  Tempo total: {len(df) * 5 / 3600:.2f} horas")
+print(f"  Medições: {len(df)}")
+print(f"  Período: {df['timestamp'].min()} → {df['timestamp'].max()}")
+
+# Potência
+powers = df['power_w'].dropna()
+print(f"\n⚡ POTÊNCIA (Watts):")
+print(f"  Média: {powers.mean():.1f} W")
+print(f"  Máxima: {powers.max():.1f} W (picos durante retraining A1)")
+print(f"  Mínima: {powers.min():.1f} W (idle)")
+print(f"  Desvio padrão: {powers.std():.1f} W")
+
+# Energia
+if 'energy_kwh' in df.columns:
+    energy_total = df['energy_kwh'].iloc[-1]
+    print(f"\n🔋 ENERGIA (kWh):")
+    print(f"  Total consumido: {energy_total:.3f} kWh")
+    print(f"  Custo (0.20€/kWh): {energy_total * 0.20:.2f} €")
+
+# Por Fase
+print(f"\n🔄 CONSUMO POR FASE:")
+df['phase'] = df['power_w'].apply(lambda x: 
+    'Idle' if x < 50 else 
+    'Detecção' if x < 150 else 
+    'Retraining'
+)
+
+for phase in ['Idle', 'Detecção', 'Retraining']:
+    subset = df[df['phase'] == phase]
+    if len(subset) > 0:
+        print(f"  {phase}: {subset['power_w'].mean():.1f} W "
+              f"({len(subset)} amostras, {len(subset)*5/60:.1f} min)")
+
+print("\n" + "=" * 70)
+```
+
+### 4.4: INTEGRAR DADOS NO PAPER
 
 ```bash
 # Terminal 1: Execute o script
