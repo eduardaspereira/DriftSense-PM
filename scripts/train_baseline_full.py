@@ -68,6 +68,12 @@ models = {
 
 print(f"🔬 A iniciar Benchmark em {len(X_test)} janelas de teste...")
 
+# 6. AVALIAR TODOS OS MODELOS E ESCOLHER O MELHOR
+best_model = None
+best_model_name = None
+best_f1_score = -1
+model_results = {}
+
 for name, model in models.items():
     print(f"\n# MODELO: {name}")
     model.fit(X_train_scaled)
@@ -76,6 +82,21 @@ for name, model in models.items():
     # Gerar Report [cite: 163]
     report_str = classification_report(y_test, y_pred, target_names=target_names, digits=3)
     print(report_str)
+    
+    # Extrair F1-score (weighted) para seleção
+    lines = report_str.split('\n')
+    for line in lines:
+        if 'weighted avg' in line:
+            parts = line.split()
+            f1_weighted = float(parts[-2])  # F1 score está penúltima coluna
+            model_results[name] = f1_weighted
+            print(f"✅ {name} F1 (weighted): {f1_weighted:.3f}")
+            
+            if f1_weighted > best_f1_score:
+                best_f1_score = f1_weighted
+                best_model = model
+                best_model_name = name
+            break
     
     with open(os.path.join(METRICS_DIR, f"report_{name.replace(' ', '_').lower()}.txt"), "w") as f:
         f.write(f"Modelo: {name}\n{report_str}")
@@ -88,10 +109,18 @@ for name, model in models.items():
     plt.savefig(os.path.join(FIGURES_DIR, f"cm_{name.replace(' ', '_').lower()}.png"))
     plt.close()
 
-    # 6. EXPORTAR O VENCEDOR (LOF) E O SCALER [cite: 168, 512]
-    if name == "Local Outlier Factor":
-        joblib.dump(model, os.path.join(MODELS_DIR, 'baseline_model.pkl'))
-        joblib.dump(scaler, os.path.join(MODELS_DIR, 'scaler.pkl'))
-        print(f"💾 VENCEDOR EXPORTADO: Modelo e Scaler guardados em {MODELS_DIR}")
+# 7. EXPORTAR O VENCEDOR COM JUSTIFICAÇÃO [cite: 168, 512]
+print(f"\n{'='*60}")
+print(f"🏆 VENCEDOR SELECIONADO: {best_model_name}")
+print(f"   F1-Score (weighted): {best_f1_score:.3f}")
+for name, f1 in model_results.items():
+    status = "✅ VENCEDOR" if name == best_model_name else f"❌ (F1={f1:.3f})"
+    print(f"   - {name}: {status}")
+print(f"{'='*60}\n")
+
+joblib.dump(best_model, os.path.join(MODELS_DIR, 'baseline_model.pkl'))
+joblib.dump(scaler, os.path.join(MODELS_DIR, 'scaler.pkl'))
+print(f"💾 VENCEDOR EXPORTADO: {best_model_name}")
+print(f"   Modelo e Scaler guardados em {MODELS_DIR}")
 
 print("\n🚀 TUDO PRONTO! Agora podes correr o 'run_detectors.py'.")

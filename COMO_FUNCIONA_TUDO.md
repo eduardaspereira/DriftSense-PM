@@ -567,14 +567,6 @@ Speedup = 278 / 10 = 27.9×
 3. Delay está entre 0-20 janelas
 4. Latency está entre 0-300 ms
 
----
-
-### P: "O que fazer se algo não funcionar?"
-
-**R:** 
-1. Ver `scripts/debug/validate_week13_gate.py`
-2. Consultar `INSTALL.md` → Troubleshooting
-3. Verificar `configs/config.yaml`
 
 ---
 
