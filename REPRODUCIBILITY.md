@@ -23,7 +23,7 @@
 - **Connections:**
   - Arduino → RPi via USB
   - Motor/Fan → Arduino control pins
-  - Temperature sensor via I2C/analog
+  - Temperature sensor vVia I2C/analog
 
 ---
 
