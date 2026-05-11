@@ -1,0 +1,9 @@
+Modelo: Isolation Forest
+                     precision    recall  f1-score   support
+
+Anomalia/Drift (-1)      1.000     0.089     0.164       595
+         Normal (1)      0.042     1.000     0.081        24
+
+           accuracy                          0.124       619
+          macro avg      0.521     0.545     0.122       619
+       weighted avg      0.963     0.124     0.160       619
