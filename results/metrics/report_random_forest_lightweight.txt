@@ -1,0 +1,14 @@
+Modelo: Random Forest (Lightweight)
+Tempo de Treino: 0.008s
+Tempo de Inferência: 0.001s (0.00ms/amostra)
+Tamanho do Modelo: 3.6 KB
+F1-Score (weighted): 0.003
+
+                     precision    recall  f1-score   support
+
+Anomalia/Drift (-1)      0.000     0.000     0.000       595
+         Normal (1)      0.039     1.000     0.075        24
+
+           accuracy                          0.039       619
+          macro avg      0.019     0.500     0.037       619
+       weighted avg      0.002     0.039     0.003       619
