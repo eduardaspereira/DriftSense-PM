@@ -1,0 +1,290 @@
+🔬 A iniciar Matriz Fatorial... (5 repetições por combinação)
+📊 Total de configurações: 6 cenários × 3 detectores × 3 adaptações = 54 configs básicas
+🔁 Com 5 repetições: 270 linhas esperadas no output
+
+
+================================================================================
+📊 MATRIZ DE RESULTADOS FINAIS (Deteção + Adaptação)
+================================================================================
+ Repetition Scenario Detector Adaptation Delay (Janelas)  Latency (ms) Recovery Time
+          1       D0     DET0         A0             N/D      0.000000 Não Recuperou
+          2       D0     DET0         A0             N/D      0.000000 Não Recuperou
+          3       D0     DET0         A0             N/D      0.000000 Não Recuperou
+          4       D0     DET0         A0             N/D      0.000000 Não Recuperou
+          5       D0     DET0         A0             N/D      0.000000 Não Recuperou
+          1       D0     DET0         A1             N/D    269.231319 Não Recuperou
+          2       D0     DET0         A1             N/D    263.154030 Não Recuperou
+          3       D0     DET0         A1             N/D    266.942739 Não Recuperou
+          4       D0     DET0         A1             N/D    263.463020 Não Recuperou
+          5       D0     DET0         A1             N/D    262.327909 Não Recuperou
+          1       D0     DET0         A2             N/D      0.000000 Não Recuperou
+          2       D0     DET0         A2             N/D      0.000000 Não Recuperou
+          3       D0     DET0         A2             N/D      0.000000 Não Recuperou
+          4       D0     DET0         A2             N/D      0.000000 Não Recuperou
+          5       D0     DET0         A2             N/D      0.000000 Não Recuperou
+          1       D0     DET1         A0             N/D      0.000000 Não Recuperou
+          2       D0     DET1         A0             N/D      0.000000 Não Recuperou
+          3       D0     DET1         A0             N/D      0.000000 Não Recuperou
+          4       D0     DET1         A0             N/D      0.000000 Não Recuperou
+          5       D0     DET1         A0             N/D      0.000000 Não Recuperou
+          1       D0     DET1         A1             N/D    263.782024 Não Recuperou
+          2       D0     DET1         A1             N/D    327.522278 Não Recuperou
+          3       D0     DET1         A1             N/D    262.072802 Não Recuperou
+          4       D0     DET1         A1             N/D    263.205767 Não Recuperou
+          5       D0     DET1         A1             N/D    262.961388 Não Recuperou
+          1       D0     DET1         A2             N/D      0.000000 Não Recuperou
+          2       D0     DET1         A2             N/D      0.000000 Não Recuperou
+          3       D0     DET1         A2             N/D      0.000000 Não Recuperou
+          4       D0     DET1         A2             N/D      0.000000 Não Recuperou
+          5       D0     DET1         A2             N/D      0.000000 Não Recuperou
+          1       D0     DET2         A0              19      0.000000 Não Recuperou
+          2       D0     DET2         A0              19      0.000000 Não Recuperou
+          3       D0     DET2         A0              19      0.000000 Não Recuperou
+          4       D0     DET2         A0              19      0.000000 Não Recuperou
+          5       D0     DET2         A0              19      0.000000 Não Recuperou
+          1       D0     DET2         A1              19    262.579918 Não Recuperou
+          2       D0     DET2         A1              19    263.484001 Não Recuperou
+          3       D0     DET2         A1              19    263.530254 Não Recuperou
+          4       D0     DET2         A1              19    264.668941 Não Recuperou
+          5       D0     DET2         A1              19    263.715029 Não Recuperou
+          1       D0     DET2         A2              19     15.936136             0
+          2       D0     DET2         A2              19     16.154289             0
+          3       D0     DET2         A2              19     16.124964             0
+          4       D0     DET2         A2              19     15.970230             0
+          5       D0     DET2         A2              19     15.984058             0
+          1       D1     DET0         A0             N/D      0.000000 Não Recuperou
+          2       D1     DET0         A0             N/D      0.000000 Não Recuperou
+          3       D1     DET0         A0             N/D      0.000000 Não Recuperou
+          4       D1     DET0         A0             N/D      0.000000 Não Recuperou
+          5       D1     DET0         A0             N/D      0.000000 Não Recuperou
+          1       D1     DET0         A1             N/D    263.367414 Não Recuperou
+          2       D1     DET0         A1             N/D    263.495445 Não Recuperou
+          3       D1     DET0         A1             N/D    263.435125 Não Recuperou
+          4       D1     DET0         A1             N/D    264.267683 Não Recuperou
+          5       D1     DET0         A1             N/D    262.824059 Não Recuperou
+          1       D1     DET0         A2             N/D      0.000000 Não Recuperou
+          2       D1     DET0         A2             N/D      0.000000 Não Recuperou
+          3       D1     DET0         A2             N/D      0.000000 Não Recuperou
+          4       D1     DET0         A2             N/D      0.000000 Não Recuperou
+          5       D1     DET0         A2             N/D      0.000000 Não Recuperou
+          1       D1     DET1         A0               9      0.000000 Não Recuperou
+          2       D1     DET1         A0               9      0.000000 Não Recuperou
+          3       D1     DET1         A0               9      0.000000 Não Recuperou
+          4       D1     DET1         A0               9      0.000000 Não Recuperou
+          5       D1     DET1         A0               9      0.000000 Não Recuperou
+          1       D1     DET1         A1               9    263.301849 Não Recuperou
+          2       D1     DET1         A1               9    262.856960 Não Recuperou
+          3       D1     DET1         A1               9    261.820793 Não Recuperou
+          4       D1     DET1         A1               9    262.145758 Não Recuperou
+          5       D1     DET1         A1               9    261.741400 Não Recuperou
+          1       D1     DET1         A2               9     15.830755             1
+          2       D1     DET1         A2               9     15.876532             1
+          3       D1     DET1         A2               9     15.866518             1
+          4       D1     DET1         A2               9     15.902281             1
+          5       D1     DET1         A2               9     16.010761             1
+          1       D1     DET2         A0              19      0.000000 Não Recuperou
+          2       D1     DET2         A0              19      0.000000 Não Recuperou
+          3       D1     DET2         A0              19      0.000000 Não Recuperou
+          4       D1     DET2         A0              19      0.000000 Não Recuperou
+          5       D1     DET2         A0              19      0.000000 Não Recuperou
+          1       D1     DET2         A1              19    263.382673 Não Recuperou
+          2       D1     DET2         A1              19    264.936447 Não Recuperou
+          3       D1     DET2         A1              19    262.762785 Não Recuperou
+          4       D1     DET2         A1              19    262.702703 Não Recuperou
+          5       D1     DET2         A1              19    262.483120 Não Recuperou
+          1       D1     DET2         A2              19     16.015530             1
+          2       D1     DET2         A2              19     16.265154             1
+          3       D1     DET2         A2              19     15.979052             1
+          4       D1     DET2         A2              19     15.987158             1
+          5       D1     DET2         A2              19     15.961409             1
+          1       D2     DET0         A0             N/D      0.000000 Não Recuperou
+          2       D2     DET0         A0             N/D      0.000000 Não Recuperou
+          3       D2     DET0         A0             N/D      0.000000 Não Recuperou
+          4       D2     DET0         A0             N/D      0.000000 Não Recuperou
+          5       D2     DET0         A0             N/D      0.000000 Não Recuperou
+          1       D2     DET0         A1             N/D    262.089252 Não Recuperou
+          2       D2     DET0         A1             N/D    262.003660 Não Recuperou
+          3       D2     DET0         A1             N/D    262.251377 Não Recuperou
+          4       D2     DET0         A1             N/D    261.652470 Não Recuperou
+          5       D2     DET0         A1             N/D    262.601852 Não Recuperou
+          1       D2     DET0         A2             N/D      0.000000 Não Recuperou
+          2       D2     DET0         A2             N/D      0.000000 Não Recuperou
+          3       D2     DET0         A2             N/D      0.000000 Não Recuperou
+          4       D2     DET0         A2             N/D      0.000000 Não Recuperou
+          5       D2     DET0         A2             N/D      0.000000 Não Recuperou
+          1       D2     DET1         A0              12      0.000000 Não Recuperou
+          2       D2     DET1         A0              12      0.000000 Não Recuperou
+          3       D2     DET1         A0              12      0.000000 Não Recuperou
+          4       D2     DET1         A0              12      0.000000 Não Recuperou
+          5       D2     DET1         A0              12      0.000000 Não Recuperou
+          1       D2     DET1         A1              12    261.082172 Não Recuperou
+          2       D2     DET1         A1              12    262.691259 Não Recuperou
+          3       D2     DET1         A1              12    263.455629 Não Recuperou
+          4       D2     DET1         A1              12    261.703730 Não Recuperou
+          5       D2     DET1         A1              12    260.531902 Não Recuperou
+          1       D2     DET1         A2              12     15.923023             3
+          2       D2     DET1         A2              12     15.911102             3
+          3       D2     DET1         A2              12     15.887737             3
+          4       D2     DET1         A2              12     15.936375             3
+          5       D2     DET1         A2              12     15.909672             3
+          1       D2     DET2         A0              19      0.000000 Não Recuperou
+          2       D2     DET2         A0              19      0.000000 Não Recuperou
+          3       D2     DET2         A0              19      0.000000 Não Recuperou
+          4       D2     DET2         A0              19      0.000000 Não Recuperou
+          5       D2     DET2         A0              19      0.000000 Não Recuperou
+          1       D2     DET2         A1              19    261.584759 Não Recuperou
+          2       D2     DET2         A1              19    261.083841 Não Recuperou
+          3       D2     DET2         A1              19    261.702776 Não Recuperou
+          4       D2     DET2         A1              19    263.957977 Não Recuperou
+          5       D2     DET2         A1              19    261.685133 Não Recuperou
+          1       D2     DET2         A2              19     15.959024             1
+          2       D2     DET2         A2              19     16.082287             1
+          3       D2     DET2         A2              19     16.307116             1
+          4       D2     DET2         A2              19     16.129017             1
+          5       D2     DET2         A2              19     15.931129             1
+          1       D3     DET0         A0             N/D      0.000000 Não Recuperou
+          2       D3     DET0         A0             N/D      0.000000 Não Recuperou
+          3       D3     DET0         A0             N/D      0.000000 Não Recuperou
+          4       D3     DET0         A0             N/D      0.000000 Não Recuperou
+          5       D3     DET0         A0             N/D      0.000000 Não Recuperou
+          1       D3     DET0         A1             N/D    262.688160 Não Recuperou
+          2       D3     DET0         A1             N/D    261.649847 Não Recuperou
+          3       D3     DET0         A1             N/D    282.790661 Não Recuperou
+          4       D3     DET0         A1             N/D    266.802788 Não Recuperou
+          5       D3     DET0         A1             N/D    262.109518 Não Recuperou
+          1       D3     DET0         A2             N/D      0.000000 Não Recuperou
+          2       D3     DET0         A2             N/D      0.000000 Não Recuperou
+          3       D3     DET0         A2             N/D      0.000000 Não Recuperou
+          4       D3     DET0         A2             N/D      0.000000 Não Recuperou
+          5       D3     DET0         A2             N/D      0.000000 Não Recuperou
+          1       D3     DET1         A0             117      0.000000 Não Recuperou
+          2       D3     DET1         A0             117      0.000000 Não Recuperou
+          3       D3     DET1         A0             117      0.000000 Não Recuperou
+          4       D3     DET1         A0             117      0.000000 Não Recuperou
+          5       D3     DET1         A0             117      0.000000 Não Recuperou
+          1       D3     DET1         A1             N/D    261.943817 Não Recuperou
+          2       D3     DET1         A1             N/D    262.545586 Não Recuperou
+          3       D3     DET1         A1             N/D    261.645555 Não Recuperou
+          4       D3     DET1         A1             N/D    261.605263 Não Recuperou
+          5       D3     DET1         A1             N/D    260.939360 Não Recuperou
+          1       D3     DET1         A2             117     16.348124             1
+          2       D3     DET1         A2             117     15.985012             1
+          3       D3     DET1         A2             117     15.986204             1
+          4       D3     DET1         A2             117     16.788483             1
+          5       D3     DET1         A2             117     16.279459             1
+          1       D3     DET2         A0              19      0.000000 Não Recuperou
+          2       D3     DET2         A0              19      0.000000 Não Recuperou
+          3       D3     DET2         A0              19      0.000000 Não Recuperou
+          4       D3     DET2         A0              19      0.000000 Não Recuperou
+          5       D3     DET2         A0              19      0.000000 Não Recuperou
+          1       D3     DET2         A1              19    262.101889 Não Recuperou
+          2       D3     DET2         A1              19    260.587215 Não Recuperou
+          3       D3     DET2         A1              19    266.257524 Não Recuperou
+          4       D3     DET2         A1              19    261.666536 Não Recuperou
+          5       D3     DET2         A1              19    261.070967 Não Recuperou
+          1       D3     DET2         A2              19     16.003132             1
+          2       D3     DET2         A2              19     15.928507             1
+          3       D3     DET2         A2              19     16.098976             1
+          4       D3     DET2         A2              19     15.948296             1
+          5       D3     DET2         A2              19     15.911341             1
+          1 D4_D1eD2     DET0         A0             N/D      0.000000 Não Recuperou
+          2 D4_D1eD2     DET0         A0             N/D      0.000000 Não Recuperou
+          3 D4_D1eD2     DET0         A0             N/D      0.000000 Não Recuperou
+          4 D4_D1eD2     DET0         A0             N/D      0.000000 Não Recuperou
+          5 D4_D1eD2     DET0         A0             N/D      0.000000 Não Recuperou
+          1 D4_D1eD2     DET0         A1             N/D    261.337042 Não Recuperou
+          2 D4_D1eD2     DET0         A1             N/D    261.212587 Não Recuperou
+          3 D4_D1eD2     DET0         A1             N/D    262.506008 Não Recuperou
+          4 D4_D1eD2     DET0         A1             N/D    261.619568 Não Recuperou
+          5 D4_D1eD2     DET0         A1             N/D    262.928724 Não Recuperou
+          1 D4_D1eD2     DET0         A2             N/D      0.000000 Não Recuperou
+          2 D4_D1eD2     DET0         A2             N/D      0.000000 Não Recuperou
+          3 D4_D1eD2     DET0         A2             N/D      0.000000 Não Recuperou
+          4 D4_D1eD2     DET0         A2             N/D      0.000000 Não Recuperou
+          5 D4_D1eD2     DET0         A2             N/D      0.000000 Não Recuperou
+          1 D4_D1eD2     DET1         A0               9      0.000000 Não Recuperou
+          2 D4_D1eD2     DET1         A0               9      0.000000 Não Recuperou
+          3 D4_D1eD2     DET1         A0               9      0.000000 Não Recuperou
+          4 D4_D1eD2     DET1         A0               9      0.000000 Não Recuperou
+          5 D4_D1eD2     DET1         A0               9      0.000000 Não Recuperou
+          1 D4_D1eD2     DET1         A1               9    262.315750 Não Recuperou
+          2 D4_D1eD2     DET1         A1               9    263.415098 Não Recuperou
+          3 D4_D1eD2     DET1         A1               9    261.921406 Não Recuperou
+          4 D4_D1eD2     DET1         A1               9    263.546705 Não Recuperou
+          5 D4_D1eD2     DET1         A1               9    261.256456 Não Recuperou
+          1 D4_D1eD2     DET1         A2               9     15.883923             1
+          2 D4_D1eD2     DET1         A2               9     17.323494             1
+          3 D4_D1eD2     DET1         A2               9     15.841484             1
+          4 D4_D1eD2     DET1         A2               9     15.902758             1
+          5 D4_D1eD2     DET1         A2               9     15.863180             1
+          1 D4_D1eD2     DET2         A0              19      0.000000 Não Recuperou
+          2 D4_D1eD2     DET2         A0              19      0.000000 Não Recuperou
+          3 D4_D1eD2     DET2         A0              19      0.000000 Não Recuperou
+          4 D4_D1eD2     DET2         A0              19      0.000000 Não Recuperou
+          5 D4_D1eD2     DET2         A0              19      0.000000 Não Recuperou
+          1 D4_D1eD2     DET2         A1              19    261.233330 Não Recuperou
+          2 D4_D1eD2     DET2         A1              19    261.781454 Não Recuperou
+          3 D4_D1eD2     DET2         A1              19    262.332678 Não Recuperou
+          4 D4_D1eD2     DET2         A1              19    262.829781 Não Recuperou
+          5 D4_D1eD2     DET2         A1              19    265.028477 Não Recuperou
+          1 D4_D1eD2     DET2         A2              19     16.055584             1
+          2 D4_D1eD2     DET2         A2              19     16.034842             1
+          3 D4_D1eD2     DET2         A2              19     15.949965             1
+          4 D4_D1eD2     DET2         A2              19     15.996933             1
+          5 D4_D1eD2     DET2         A2              19     15.934706             1
+          1 D4_D2eD3     DET0         A0             N/D      0.000000 Não Recuperou
+          2 D4_D2eD3     DET0         A0             N/D      0.000000 Não Recuperou
+          3 D4_D2eD3     DET0         A0             N/D      0.000000 Não Recuperou
+          4 D4_D2eD3     DET0         A0             N/D      0.000000 Não Recuperou
+          5 D4_D2eD3     DET0         A0             N/D      0.000000 Não Recuperou
+          1 D4_D2eD3     DET0         A1             N/D    261.120796 Não Recuperou
+          2 D4_D2eD3     DET0         A1             N/D    262.766361 Não Recuperou
+          3 D4_D2eD3     DET0         A1             N/D    261.216402 Não Recuperou
+          4 D4_D2eD3     DET0         A1             N/D    261.695623 Não Recuperou
+          5 D4_D2eD3     DET0         A1             N/D    263.431311 Não Recuperou
+          1 D4_D2eD3     DET0         A2             N/D      0.000000 Não Recuperou
+          2 D4_D2eD3     DET0         A2             N/D      0.000000 Não Recuperou
+          3 D4_D2eD3     DET0         A2             N/D      0.000000 Não Recuperou
+          4 D4_D2eD3     DET0         A2             N/D      0.000000 Não Recuperou
+          5 D4_D2eD3     DET0         A2             N/D      0.000000 Não Recuperou
+          1 D4_D2eD3     DET1         A0              13      0.000000 Não Recuperou
+          2 D4_D2eD3     DET1         A0              13      0.000000 Não Recuperou
+          3 D4_D2eD3     DET1         A0              13      0.000000 Não Recuperou
+          4 D4_D2eD3     DET1         A0              13      0.000000 Não Recuperou
+          5 D4_D2eD3     DET1         A0              13      0.000000 Não Recuperou
+          1 D4_D2eD3     DET1         A1              13    261.993885 Não Recuperou
+          2 D4_D2eD3     DET1         A1              13    261.552811 Não Recuperou
+          3 D4_D2eD3     DET1         A1              13    324.481726 Não Recuperou
+          4 D4_D2eD3     DET1         A1              13    260.523558 Não Recuperou
+          5 D4_D2eD3     DET1         A1              13    262.941837 Não Recuperou
+          1 D4_D2eD3     DET1         A2              13     15.920877             1
+          2 D4_D2eD3     DET1         A2              13     15.988827             1
+          3 D4_D2eD3     DET1         A2              13     16.017199             1
+          4 D4_D2eD3     DET1         A2              13     16.230583             1
+          5 D4_D2eD3     DET1         A2              13     15.886784             1
+          1 D4_D2eD3     DET2         A0              19      0.000000 Não Recuperou
+          2 D4_D2eD3     DET2         A0              19      0.000000 Não Recuperou
+          3 D4_D2eD3     DET2         A0              19      0.000000 Não Recuperou
+          4 D4_D2eD3     DET2         A0              19      0.000000 Não Recuperou
+          5 D4_D2eD3     DET2         A0              19      0.000000 Não Recuperou
+          1 D4_D2eD3     DET2         A1              19    261.448622 Não Recuperou
+          2 D4_D2eD3     DET2         A1              19    261.616945 Não Recuperou
+          3 D4_D2eD3     DET2         A1              19    262.585163 Não Recuperou
+          4 D4_D2eD3     DET2         A1              19    262.367487 Não Recuperou
+          5 D4_D2eD3     DET2         A1              19    262.797356 Não Recuperou
+          1 D4_D2eD3     DET2         A2              19     16.003370             1
+          2 D4_D2eD3     DET2         A2              19     16.020298             1
+          3 D4_D2eD3     DET2         A2              19     15.995502             1
+          4 D4_D2eD3     DET2         A2              19     16.124249             1
+          5 D4_D2eD3     DET2         A2              19     16.014099             1
+
+================================================================================
+✅ MATRIZ FATORIAL COMPLETA!
+================================================================================
+📁 Ficheiro salvo: ../results/metrics/full_factorial_results.csv
+📈 Linhas no ficheiro: 270
+🎯 Cenários únicos: 6
+🔍 Detectores: DET0, DET1, DET2
+⚙️  Adaptações: A0, A1, A2
+================================================================================
+

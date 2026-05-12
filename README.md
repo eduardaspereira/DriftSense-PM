@@ -3,7 +3,7 @@
 **Projeto:** DriftSense-PM - Benchmark de Manutenção Preditiva com Detecção de Concept Drift  
 **Instituição:** MEI, 1º Ano - Engenharia Internet (2025/2026)  
 **Orientador:** Prof. Flávio de Oliveira Silva, Ph.D.  
-**Autor:** Eduardo Aspereira  
+**Autor:** Eduarda Pereira, Gonçalo Ferreira, Gonçalo Magalhães  
 
 ---
 

@@ -2,7 +2,7 @@
 
 **Version:** 1.0  
 **Last Updated:** May 7, 2026  
-**Author:** Eduardo Aspereira  
+**Author:** Eduarda Pereira, Gonçalo Ferreira, Gonçalo Magalhães  
 **Contact:** edp@uminho.pt
 
 ---
@@ -363,4 +363,4 @@ ls -lh ../results/figures/
 ---
 
 **Last Modified:** May 7, 2026  
-**Maintained By:** Eduardo Aspereira
+**Maintained By:** Eduarda Pereira, Gonçalo Ferreira, Gonçalo Magalhães

@@ -565,7 +565,7 @@ cat > METADATA.yaml << EOF
 name: DriftSense-PM
 version: 1.0
 authors:
-  - Eduardo Aspereira (you)
+  - Eduarda Pereira, Gonçalo Ferreira, Gonçalo Magalhães (you)
   - [Colega name]
 institution: Universidade do Minho, MEI
 date: 2026-05-11

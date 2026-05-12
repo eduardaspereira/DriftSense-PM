@@ -7,7 +7,7 @@ Executes full end-to-end pipeline:
 Feature Extraction → Model Training → Factorial Evaluation →  
 Statistical Analysis → Plot Generation
 
-Author: Eduardo Aspereira
+Author: Eduarda Pereira, Gonçalo Ferreira, Gonçalo Magalhães
 Date: May 7, 2026
 """
 

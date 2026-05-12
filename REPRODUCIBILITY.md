@@ -723,6 +723,6 @@ You've successfully reproduced DriftSense-PM when:
 ---
 
 **Last Updated:** May 7, 2026  
-**Author:** Eduardo Aspereira  
+**Author:** Eduarda Pereira, Gonçalo Ferreira, Gonçalo Magalhães  
 **Advisor:** Prof. Flávio de Oliveira Silva, Ph.D.
 

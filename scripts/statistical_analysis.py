@@ -5,7 +5,7 @@ Statistical Analysis for DriftSense-PM Factorial Results
 Computes Mean ± Std, Confidence Intervals (95%), and Significance Tests
 (Wilcoxon signed-rank, ANOVA) for full factorial experiment results.
 
-Author: Eduardo Aspereira
+Author: Eduarda Pereira, Gonçalo Ferreira, Gonçalo Magalhães
 Date: May 7, 2026
 """
 
