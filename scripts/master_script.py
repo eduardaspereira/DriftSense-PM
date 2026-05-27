@@ -68,6 +68,8 @@ def simulate_stream(file_name, detector_type, adaptation_type):
     is_recovering = False
     recovery_start_idx = None
     recovery_time = None
+    consecutive_normal_predictions = 0
+    STABILITY_THRESHOLD = 5 # Definir quantas janelas estáveis determinam uma recuperação real
     
     for i in range(len(df)):
         # Extrair dados e aplicar o Scaler atual
@@ -75,7 +77,7 @@ def simulate_stream(file_name, detector_type, adaptation_type):
         temp_curr = df.iloc[i]['Temp_Mean']
         X_scaled = scaler.transform(X_raw)
         
-        # Buffer de memória: Guardamos a linha com os arrays puros
+        # Buffer de memória
         buffer_X.append(X_raw.values[0])
         if len(buffer_X) > BUFFER_SIZE:
             buffer_X.pop(0)
@@ -103,32 +105,45 @@ def simulate_stream(file_name, detector_type, adaptation_type):
                     detection_idx = i
 
         # --- FASE 2: ADAPTAÇÃO ---
-        # CORREÇÃO CHAVE: Converter o buffer num DataFrame com os nomes originais!
         df_buffer = pd.DataFrame(buffer_X, columns=features_cols)
 
         if adaptation_type == 'A0':
             pass
             
         elif adaptation_type == 'A1' and i > 0 and i % A1_INTERVAL == 0:
-            # Enviamos o df_buffer com os nomes perfeitos!
             model, scaler, lat = adaptations.apply_a1_periodic_retrain(df_buffer, PROCESSED_DIR)
             total_latency_ms += lat
+            # CORREÇÃO CRÍTICA 1: Ativar sinalizadores de recuperação para o A1
+            if recovery_time is None:
+                is_recovering = True
+                recovery_start_idx = i
+                consecutive_normal_predictions = 0
 
         elif adaptation_type == 'A2' and detection_idx is not None and not adapted_once:
-            # Enviamos o df_buffer com os nomes perfeitos!
             model, scaler, lat = adaptations.apply_a2_lightweight_adapt(df_buffer)
             total_latency_ms += lat
             adapted_once = True
             is_recovering = True
             recovery_start_idx = i
+            consecutive_normal_predictions = 0
 
-        # --- FASE 3: MÉTRICA DE RECUPERAÇÃO ---
+        # --- FASE 3: MÉTRICA DE RECUPERAÇÃO CORRIGIDA ---
         if is_recovering and recovery_time is None:
-            if y_pred == 1: # Modelo adaptado volta a classificar a máquina como "Normal"
-                recovery_time = i - recovery_start_idx
+            # CORREÇÃO CRÍTICA 2: Validar estabilidade (ex: 5 predições seguidas como Normais (1))
+            if y_pred == 1:
+                consecutive_normal_predictions += 1
+            else:
+                consecutive_normal_predictions = 0
+                
+            if consecutive_normal_predictions >= STABILITY_THRESHOLD:
+                # O tempo total leva em conta o atraso até estabilizar
+                recovery_time = (i - STABILITY_THRESHOLD + 1) - recovery_start_idx
                 is_recovering = False
 
     return detection_idx, total_latency_ms, recovery_time
+
+
+
 
 # --- 3. EXECUTAR A MATRIZ FATORIAL COMPLETA ---
 scenarios = [f for f in os.listdir(PROCESSED_DIR) if f.endswith('.csv') and not f.startswith('D0')]
