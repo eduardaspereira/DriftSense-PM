@@ -1,7 +1,7 @@
 🟢 OBRIGATÓRIOS (Mantém e não mexe)
 - run_full_pipeline.py: É o teu orquestrador central. Essencial para a reprodutibilidade com um único comando exigida para a Badge da ACM.  
 - feature_engineering.py: Correto. Extrai as características no domínio do tempo e frequência usando a scipy.  
-- train_baseline_full.py: Fundamental. Treina e compara o Isolation Forest, One-Class SVM e o LOF (Local Outlier Factor), exportando o scaler e o modelo vencedor (LOF).  
+- train_baseline_full.py: Fundamental. Treina e compara o Isolation Forest, One-Class SVM e o LOF (Local Outlier Factor), exportando o scaler e o modelo vencedor(SVM).  
 - master_script.py: O coração da tua simulação. É ele que corre a matriz fatorial de $3 \times 3$ (Detetores $\times$ Adaptações) com as 5 repetições
 - adaptations.py: Contém as funções de re-treino total (A1) e adaptação leve (A2) chamadas pelo master script
 - statistical_analysis.py: Crítico para calculares as médias, desvios padrões, intervalos de confiança e o teste de Wilcoxon exigido no teu plano.
