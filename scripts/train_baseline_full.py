@@ -15,7 +15,7 @@ import warnings
 
 warnings.filterwarnings('ignore')
 
-# 1. CONFIGURAÇÕES E PASTAS (Selo de Reprodutibilidade ACM) [cite: 511, 512]
+# 1. CONFIGURAÇÕES E PASTAS (Selo de Reprodutibilidade ACM)
 CONFIG_PATH = "../configs/config.yaml"
 with open(CONFIG_PATH, 'r') as f:
     config = yaml.safe_load(f)
@@ -30,7 +30,7 @@ for folder in [FIGURES_DIR, METRICS_DIR, MODELS_DIR]:
 
 target_names = ['Anomalia/Drift (-1)', 'Normal (1)']
 
-# 2. CARREGAMENTO E SPLIT (D0 - 100% Normal) [cite: 16, 214]
+# 2. CARREGAMENTO E SPLIT (D0 - 100% Normal)
 print("📂 A carregar dados e preparar o Benchmark...")
 caminho_d0 = os.path.join(PROCESSED_DIR, "D0_dataset_features.csv")
 df_d0 = pd.read_csv(caminho_d0)
@@ -38,7 +38,7 @@ df_d0 = pd.read_csv(caminho_d0)
 X_d0 = df_d0.drop(['Scenario', 'Timestamp', 'SysState', 'SampleCount'], axis=1, errors='ignore')
 y_d0 = np.ones(len(X_d0)) # 1 para Normal
 
-# Split cronológico (80% treino / 20% teste normal) para evitar leakage [cite: 11]
+# Split cronológico (80% treino / 20% teste normal) para evitar leakage
 X_train, X_test_normal, y_train, y_test_normal = train_test_split(X_d0, y_d0, test_size=0.2, shuffle=False)
 
 # 3. PREPARAR DADOS DE DRIFT (D1, D3, D4) PARA TESTE
@@ -79,7 +79,7 @@ for name, model in models.items():
     model.fit(X_train_scaled)
     y_pred = model.predict(X_test_scaled)
     
-    # Gerar Report [cite: 163]
+    # Gerar Report
     report_str = classification_report(y_test, y_pred, target_names=target_names, digits=3)
     print(report_str)
     
@@ -109,7 +109,7 @@ for name, model in models.items():
     plt.savefig(os.path.join(FIGURES_DIR, f"cm_{name.replace(' ', '_').lower()}.png"))
     plt.close()
 
-# 7. EXPORTAR O VENCEDOR COM JUSTIFICAÇÃO [cite: 168, 512]
+# 7. EXPORTAR O VENCEDOR COM JUSTIFICAÇÃO 
 print(f"\n{'='*60}")
 print(f"🏆 VENCEDOR SELECIONADO: {best_model_name}")
 print(f"   F1-Score (weighted): {best_f1_score:.3f}")

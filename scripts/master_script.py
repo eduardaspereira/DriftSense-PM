@@ -8,12 +8,15 @@ import warnings
 import argparse
 from scipy.stats import ks_2samp
 
-# O módulo de adaptações atualizado
-import adaptations 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if BASE_DIR not in sys.path:
+    sys.path.insert(0, BASE_DIR)
+
+import src.adaptations as adaptations
 
 warnings.filterwarnings('ignore')
 
-# --- 0. PARÂMETROS CLI ---
+# --- 0. PARAMETROS CLI ---
 parser = argparse.ArgumentParser(description='DriftSense-PM: Full Factorial Evaluation')
 parser.add_argument('--repetitions', type=int, default=None, help='Number of repetitions (overrides config.yaml)')
 args = parser.parse_args()
