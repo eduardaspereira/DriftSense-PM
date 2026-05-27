@@ -34,7 +34,7 @@ def calcular_frequencia_pico(dados, fs):
 
 def main():
     print("🚀 A iniciar o Pipeline de Feature Engineering (ACM Compliant)...")
-    ficheiros_raw = [f for f in os.listdir(RAW_DIR) if f.endswith('.csv')]
+    ficheiros_raw = [f for f in os.listdir(RAW_DIR) if f.endswith('.csv') and f.startswith('D')]
 
     for ficheiro in ficheiros_raw:
         caminho_entrada = os.path.join(RAW_DIR, ficheiro)

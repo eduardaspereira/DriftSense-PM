@@ -128,7 +128,6 @@ def main():
     print(f"   [3] Factorial Evaluation (30 min)")
     print(f"   [4] Statistical Analysis (2 min)")
     print(f"   [5] Plot Generation (1 min)")
-    print(f"\n   Total: ~40 minutos em PC, ~2-3 horas em Raspberry Pi 5\n")
     
     print(f"💡 Para executar uma etapa isolada:")
     print(f"   python feature_engineering.py")

@@ -1,0 +1,17 @@
+🟢 OBRIGATÓRIOS (Mantém e não mexe)
+- run_full_pipeline.py: É o teu orquestrador central. Essencial para a reprodutibilidade com um único comando exigida para a Badge da ACM.  
+- feature_engineering.py: Correto. Extrai as características no domínio do tempo e frequência usando a scipy.  
+- train_baseline_full.py: Fundamental. Treina e compara o Isolation Forest, One-Class SVM e o LOF (Local Outlier Factor), exportando o scaler e o modelo vencedor (LOF).  
+- master_script.py: O coração da tua simulação. É ele que corre a matriz fatorial de $3 \times 3$ (Detetores $\times$ Adaptações) com as 5 repetições
+- adaptations.py: Contém as funções de re-treino total (A1) e adaptação leve (A2) chamadas pelo master script
+- statistical_analysis.py: Crítico para calculares as médias, desvios padrões, intervalos de confiança e o teste de Wilcoxon exigido no teu plano.
+- generate_thesis_plots.py: Excelente script para gerar os gráficos académicos a 300 DPI (Boxplots, Heatmaps e a Frente de Pareto).
+
+🟡 MEDIÇÃO DE ENERGIA
+- power_meter_fnirsi.py
+- analyze_power_measurements.py e plot_power_measurements.py: São necessários para analisar os logs do FNIRSI e gerar os gráficos de consumo (Watts, Joules e Wh) para o teu relatório final.  
+
+🔴 fora pipeline
+- optimize_detectors.py: É útil apenas para a fase de calibração de hiperparâmetros (encontrar a melhor persistência e Alpha do KS). Não deve fazer parte do pipeline automatizado final (run_full_pipeline.py). Deixa-o numa pasta de utilitários de pesquisa
+
+- run_full_pipeline.py, feature_engineering.py, train_baseline_full.py, adaptations.py,statistical_analysis.py,generate_thesis_plots.py

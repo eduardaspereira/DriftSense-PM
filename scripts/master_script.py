@@ -50,7 +50,7 @@ def simulate_stream(file_name, detector_type, adaptation_type):
     scaler = joblib.load(os.path.join(MODELS_DIR, 'scaler.pkl'))
     
     df_ref = pd.read_csv(os.path.join(PROCESSED_DIR, caminho_ref))
-    ref_temp = df_ref['Temp_Mean'].values
+    ref_vibracao = df_ref['AccX_RMS'].values
     
     # 2. Carregar o fluxo do cenário atual
     df = pd.read_csv(os.path.join(PROCESSED_DIR, file_name))
@@ -60,7 +60,7 @@ def simulate_stream(file_name, detector_type, adaptation_type):
     detection_idx = None
     consecutive_alarms = 0
     buffer_X = []
-    window_temp = []
+    window_vib = []
     total_latency_ms = 0.0
     adapted_once = False
     
@@ -74,7 +74,7 @@ def simulate_stream(file_name, detector_type, adaptation_type):
     for i in range(len(df)):
         # Extrair dados e aplicar o Scaler atual
         X_raw = df.iloc[[i]][features_cols]
-        temp_curr = df.iloc[i]['Temp_Mean']
+        vib_curr = df.iloc[i]['AccX_RMS']
         X_scaled = scaler.transform(X_raw)
         
         # Buffer de memória
@@ -82,10 +82,10 @@ def simulate_stream(file_name, detector_type, adaptation_type):
         if len(buffer_X) > BUFFER_SIZE:
             buffer_X.pop(0)
             
-        # Memória para o DET2 (KS-Test)
-        window_temp.append(temp_curr)
-        if len(window_temp) > WINDOW_SIZE:
-            window_temp.pop(0)
+        # Memória para o DET2 (KS-Test focado em vibração)
+        window_vib.append(vib_curr)
+        if len(window_vib) > WINDOW_SIZE:
+            window_vib.pop(0)
 
         # Inferência
         y_pred = model.predict(X_scaled)[0]
@@ -99,8 +99,8 @@ def simulate_stream(file_name, detector_type, adaptation_type):
                 detection_idx = i
                 
         elif detector_type == 'DET2' and detection_idx is None:
-            if len(window_temp) == WINDOW_SIZE:
-                _, p_val = ks_2samp(ref_temp, window_temp)
+            if len(window_vib) == WINDOW_SIZE:
+                _, p_val = ks_2samp(ref_vibracao, window_vib)
                 if p_val < ALPHA_KS:
                     detection_idx = i
 
@@ -113,7 +113,6 @@ def simulate_stream(file_name, detector_type, adaptation_type):
         elif adaptation_type == 'A1' and i > 0 and i % A1_INTERVAL == 0:
             model, scaler, lat = adaptations.apply_a1_periodic_retrain(df_buffer, PROCESSED_DIR)
             total_latency_ms += lat
-            # CORREÇÃO CRÍTICA 1: Ativar sinalizadores de recuperação para o A1
             if recovery_time is None:
                 is_recovering = True
                 recovery_start_idx = i
@@ -129,7 +128,6 @@ def simulate_stream(file_name, detector_type, adaptation_type):
 
         # --- FASE 3: MÉTRICA DE RECUPERAÇÃO CORRIGIDA ---
         if is_recovering and recovery_time is None:
-            # CORREÇÃO CRÍTICA 2: Validar estabilidade (ex: 5 predições seguidas como Normais (1))
             if y_pred == 1:
                 consecutive_normal_predictions += 1
             else:

@@ -56,13 +56,9 @@ def apply_a2_lightweight_adapt(X_buffer_new):
     """
     start_time = time.time()
     
-    # Transformar em DataFrame para o Scaler engolir sem erros de formato
-    X_recent = pd.DataFrame(X_buffer_new)
-    X_recent.columns = X_recent.columns.astype(str) # Forçar nomes a string
-    
     # 1. Scaler adaptado apenas à nova realidade
     new_scaler = StandardScaler()
-    X_scaled = new_scaler.fit_transform(X_recent)
+    X_scaled = new_scaler.fit_transform(X_buffer_new)
     
     # 2. Modelo Rápido (Poucas árvores, ideal para a Edge)
     # contamination alta porque assumimos que este pequeno buffer é todo o "novo normal"
