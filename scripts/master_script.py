@@ -147,11 +147,11 @@ def simulate_stream(file_name, detector_type, adaptation_type):
 
 
 # --- 3. EXECUTAR A MATRIZ FATORIAL COMPLETA ---
-scenarios = [f for f in os.listdir(PROCESSED_DIR) if f.endswith('.csv') and not f.startswith('D0')]
+scenarios = [f for f in os.listdir(PROCESSED_DIR) if f.endswith('.csv') and not f.startswith('D5')]
 scenarios.insert(0, caminho_ref)
 
-detectors = ['DET0', 'DET1', 'DET2']
-adaptations_list = ['A0', 'A1', 'A2']
+detectors = ['DET1', 'DET2']
+adaptations_list = ['A0']
 results = []
 
 print(f"🔬 A iniciar Matriz Fatorial... ({REPETITIONS} repetições por combinação)")
