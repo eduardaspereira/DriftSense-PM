@@ -8,11 +8,8 @@ import warnings
 import argparse
 from scipy.stats import ks_2samp
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-if BASE_DIR not in sys.path:
-    sys.path.insert(0, BASE_DIR)
 
-import src.adaptations as adaptations
+import adaptations
 
 warnings.filterwarnings('ignore')
 
@@ -151,7 +148,7 @@ scenarios = [f for f in os.listdir(PROCESSED_DIR) if f.endswith('.csv') and not 
 scenarios.insert(0, caminho_ref)
 
 detectors = ['DET1', 'DET2']
-adaptations_list = ['A0']
+adaptations_list = ['A2']
 results = []
 
 print(f"🔬 A iniciar Matriz Fatorial... ({REPETITIONS} repetições por combinação)")
