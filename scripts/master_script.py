@@ -148,7 +148,7 @@ scenarios = [f for f in os.listdir(PROCESSED_DIR) if f.endswith('.csv') and not 
 scenarios.insert(0, caminho_ref)
 
 detectors = ['DET1', 'DET2']
-adaptations_list = ['A0']
+adaptations_list = ['A1']
 results = []
 
 print(f"🔬 A iniciar Matriz Fatorial... ({REPETITIONS} repetições por combinação)")
