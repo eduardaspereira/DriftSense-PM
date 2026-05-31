@@ -1,13 +1,10 @@
 #!/usr/bin/env python3
 """
-Análise de Medições de Consumo Energético - DriftSense-PM
-==========================================================
+Descrição: Análise de medições de consumo energético e geração de relatório.
+Autores: Eduarda Pereira, Gonçalo Ferreira, Gonçalo Magalhães
 
-Analisa dados recolhidos pelo power meter e gera relatório com estatísticas.
-
-Uso:
-    python analyze_power_measurements.py power_measurements_fnirsi.csv
-    python analyze_power_measurements.py power_measurements_fnirsi.csv --output power_analysis_report.txt
+Analisa ficheiros CSV gerados pelo power meter, produzindo estatísticas,
+sumários de fases de operação epicos de potência.
 """
 
 import sys
@@ -24,35 +21,35 @@ def analyze_power_data(csv_file, output_file=None):
     try:
         df = pd.read_csv(csv_file)
     except FileNotFoundError:
-        print(f"❌ Ficheiro não encontrado: {csv_file}")
+        print(f"Ficheiro não encontrado: {csv_file}")
         sys.exit(1)
     except Exception as e:
-        print(f"❌ Erro ao ler CSV: {e}")
+        print(f"Erro ao ler CSV: {e}")
         sys.exit(1)
     
     if len(df) == 0:
-        print("❌ Ficheiro CSV vazio")
+        print("Ficheiro CSV vazio")
         sys.exit(1)
     
     # Validar colunas esperadas
     required_cols = ['voltage_v', 'current_a', 'power_w', 'temp_c', 'energy_ws', 'duration_sec']
     missing_cols = [c for c in required_cols if c not in df.columns]
     if missing_cols:
-        print(f"⚠️  Colunas faltando: {missing_cols}")
+        print(f"Colunas faltando: {missing_cols}")
     
     # Análise básica
     report = []
     report.append("=" * 80)
-    report.append("📊 ANÁLISE DE CONSUMO ENERGÉTICO - DRIFTSENSE-PM")
+    report.append("ANÁLISE DE CONSUMO ENERGÉTICO ")
     report.append("=" * 80)
     
-    report.append(f"\n📁 Ficheiro: {csv_file}")
-    report.append(f"📝 Amostras: {len(df)}")
-    report.append(f"⏱️  Duração: {df['duration_sec'].max():.1f}s = {df['duration_sec'].max()/3600:.2f}h")
+    report.append(f"\nFicheiro: {csv_file}")
+    report.append(f"Amostras: {len(df)}")
+    report.append(f" Duração: {df['duration_sec'].max():.1f}s = {df['duration_sec'].max()/3600:.2f}h")
     
     # Estatísticas de Tensão
     report.append("\n" + "-" * 80)
-    report.append("⚡ TENSÃO (Volts)")
+    report.append("TENSÃO (Volts)")
     report.append("-" * 80)
     report.append(f"  Média: {df['voltage_v'].mean():.2f} V")
     report.append(f"  Mín/Máx: {df['voltage_v'].min():.2f} V / {df['voltage_v'].max():.2f} V")
@@ -60,7 +57,7 @@ def analyze_power_data(csv_file, output_file=None):
     
     # Estatísticas de Corrente
     report.append("\n" + "-" * 80)
-    report.append("🔌 CORRENTE (Amperes)")
+    report.append("CORRENTE (Amperes)")
     report.append("-" * 80)
     report.append(f"  Média: {df['current_a'].mean():.4f} A = {df['current_a'].mean()*1000:.2f} mA")
     report.append(f"  Mín/Máx: {df['current_a'].min():.4f} A / {df['current_a'].max():.4f} A")
@@ -68,7 +65,7 @@ def analyze_power_data(csv_file, output_file=None):
     
     # Estatísticas de Potência
     report.append("\n" + "-" * 80)
-    report.append("⚡ POTÊNCIA (Watts)")
+    report.append("POTÊNCIA (Watts)")
     report.append("-" * 80)
     report.append(f"  Média: {df['power_w'].mean():.3f} W")
     report.append(f"  Mín/Máx: {df['power_w'].min():.3f} W / {df['power_w'].max():.3f} W")
@@ -77,7 +74,7 @@ def analyze_power_data(csv_file, output_file=None):
     
     # Estatísticas de Temperatura
     report.append("\n" + "-" * 80)
-    report.append("🌡️  TEMPERATURA (°C)")
+    report.append("TEMPERATURA (°C)")
     report.append("-" * 80)
     report.append(f"  Média: {df['temp_c'].mean():.1f} °C")
     report.append(f"  Mín/Máx: {df['temp_c'].min():.1f} °C / {df['temp_c'].max():.1f} °C")
@@ -89,7 +86,7 @@ def analyze_power_data(csv_file, output_file=None):
     energy_kwh = energy_wh / 1000
     
     report.append("\n" + "-" * 80)
-    report.append("🔋 ENERGIA")
+    report.append("ENERGIA")
     report.append("-" * 80)
     report.append(f"  Total consumido: {energy_ws:.2f} Ws")
     report.append(f"  Total consumido: {energy_wh:.3f} Wh")
@@ -108,7 +105,7 @@ def analyze_power_data(csv_file, output_file=None):
     
     # Análise de fases (baseado em potência)
     report.append("\n" + "-" * 80)
-    report.append("🔄 ANÁLISE POR FASES (com base em potência)")
+    report.append("ANÁLISE POR FASES (com base em potência)")
     report.append("-" * 80)
     
     # Definir limiares de fases
@@ -138,7 +135,7 @@ def analyze_power_data(csv_file, output_file=None):
     
     # Picos de potência
     report.append("\n" + "-" * 80)
-    report.append("📈 PICOS DE POTÊNCIA (top 10)")
+    report.append("PICOS DE POTÊNCIA (top 10)")
     report.append("-" * 80)
     
     top_power = df.nlargest(10, 'power_w')[['timestamp_iso', 'power_w', 'current_a', 'temp_c']]
@@ -150,23 +147,23 @@ def analyze_power_data(csv_file, output_file=None):
     
     # Recomendações
     report.append("\n" + "-" * 80)
-    report.append("💡 RECOMENDAÇÕES")
+    report.append("Alertas")
     report.append("-" * 80)
     
     max_temp = df['temp_c'].max()
     if max_temp > 70:
-        report.append(f"  ⚠️  Temperatura máxima ({max_temp:.1f}°C) é alta. Verifique ventilação.")
+        report.append(f"Temperatura máxima ({max_temp:.1f}°C) é alta. Verifique ventilação.")
     else:
-        report.append(f"  ✅ Temperatura normal ({max_temp:.1f}°C)")
+        report.append(f"Temperatura normal ({max_temp:.1f}°C)")
     
     power_variance = df['power_w'].std() / df['power_w'].mean()
     if power_variance > 0.5:
-        report.append(f"  ⚠️  Alta variabilidade de potência (CV={power_variance:.2f}). Verifique se há interferências.")
+        report.append(f"Alta variabilidade de potência (CV={power_variance:.2f}). Verifique se há interferências.")
     else:
-        report.append(f"  ✅ Potência estável (CV={power_variance:.2f})")
+        report.append(f"Potência estável (CV={power_variance:.2f})")
     
     if df['power_w'].max() / df['power_w'].mean() > 3:
-        report.append(f"  ⚠️  Picos significativos detectados. Verifique cargas variáveis.")
+        report.append(f"Picos significativos detectados. Verifique cargas variáveis.")
     
     report.append("\n" + "=" * 80)
     
@@ -178,7 +175,7 @@ def analyze_power_data(csv_file, output_file=None):
     if output_file:
         with open(output_file, 'w') as f:
             f.write(report_text)
-        print(f"\n✅ Relatório guardado em: {output_file}")
+        print(f"\nRelatório guardado em: {output_file}")
     
     return df
 

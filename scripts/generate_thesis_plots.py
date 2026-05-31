@@ -1,3 +1,11 @@
+"""
+Descrição: Geração de figuras..
+Autores: Eduarda Pereira, Gonçalo Ferreira, Gonçalo Magalhães
+
+Produz um conjunto de figuras (PNG) a partir dos resultados métricos da
+avaliação factorial.
+"""
+
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -5,7 +13,7 @@ import numpy as np
 import os
 from matplotlib.patches import Rectangle
 
-# 1. Configurações Visuais Académicas (Estilo Tese)
+# 1. Configurações Visuais
 plt.rcParams.update({
     'figure.dpi': 100,
     'savefig.dpi': 300,
@@ -33,21 +41,20 @@ os.makedirs(FIGURES_DIR, exist_ok=True)
 # 2. Carregar os Dados
 df = pd.read_csv("../results/metrics/full_factorial_results.csv")
 
-# Substituir "N/D" e "Não Recuperou" por NaN para a matemática funcionar
+# Substituir "N/D" e "Não Recuperou" por NaN 
 df['Delay (Janelas)'] = pd.to_numeric(df['Delay (Janelas)'], errors='coerce')
 df['Recovery Time'] = pd.to_numeric(df['Recovery Time'], errors='coerce')
 df['Latency (ms)'] = pd.to_numeric(df['Latency (ms)'], errors='coerce')
 
-print("🎨 Gerando gráficos com qualidade de publicação...")
+print("A gerar gráficos com qualidade de publicação...")
 print("=" * 80)
 
 # =========================================================
 # GRÁFICO 1: Detection Delay (DET1 vs DET2) - Sem Falsos Positivos
 # =========================================================
-print("\n✅ Figure 1: Detection Delay Comparison")
+print("\nFigure 1: Detection Delay Comparison")
 
 fig, ax = plt.subplots(figsize=(14, 7))
-# Filtramos o D0 (baseline) e o DET0 (cego) para ver apenas as reações reais
 df_detect = df[(df['Scenario'] != 'D0') & (df['Detector'] != 'DET0') & (df['Adaptation'] == 'A0')]
 
 sns.boxplot(
@@ -86,7 +93,7 @@ plt.close()
 # =========================================================
 # GRÁFICO 2: Custo Computacional / Latência (A1 vs A2)
 # =========================================================
-print("✅ Figure 2: Adaptation Latency Comparison")
+print("Figure 2: Adaptation Latency Comparison")
 
 fig, ax = plt.subplots(figsize=(12, 7))
 # Filtramos apenas as estratégias ativas (A0, A1 e A2)
@@ -133,7 +140,7 @@ plt.close()
 # =========================================================
 # GRÁFICO 3: Recovery Time Heatmap (Scenario x Detector x Adaptation)
 # =========================================================
-print("✅ Figure 3: Recovery Time Heatmap")
+print("Figure 3: Recovery Time Heatmap")
 
 fig, ax = plt.subplots(figsize=(14, 8))
 
@@ -176,7 +183,7 @@ plt.close()
 # =========================================================
 # GRÁFICO 4: Pareto Front (Detection Delay vs False-Positive Rate)
 # =========================================================
-print("✅ Figure 4: Pareto Front Analysis")
+print("Figure 4: Pareto Front Analysis")
 
 fig, ax = plt.subplots(figsize=(14, 8))
 
@@ -243,7 +250,7 @@ plt.close()
 # =========================================================
 # GRÁFICO 5: Hardware Setup Diagram
 # =========================================================
-print("✅ Figure 5: Hardware Architecture Diagram")
+print("Figure 5: Hardware Architecture Diagram")
 
 fig, ax = plt.subplots(figsize=(14, 9))
 ax.set_xlim(0, 10)
@@ -303,12 +310,11 @@ ax.annotate('', xy=(3.7, 3.2), xytext=(4.5, 4.5), arrowprops=arrow_props)
 ax.annotate('', xy=(6.1, 3.2), xytext=(5.5, 4.5), arrowprops=arrow_props)
 ax.annotate('', xy=(8.5, 3.2), xytext=(6.8, 4.5), arrowprops=arrow_props)
 
-# Key metrics box with enhanced styling
+
 metrics_text = '''KEY PERFORMANCE METRICS:
 • Detection Delay: 9-19 windows (0.045-0.095s @ 200Hz)
 • Adaptation Latency: A1=317ms, A2=18ms (19× speedup)
 • Model: Local Outlier Factor (F1=0.91)
-• Edge Power: <5W (RPi5) | Suitable for IoT
 • Dataset: 6 scenarios × 1180 windows × 5 reps = 35,400 samples'''
 
 ax.text(5, 0.4, metrics_text, ha='center', fontsize=8.5, family='monospace',
@@ -320,14 +326,4 @@ plt.tight_layout()
 plt.savefig(os.path.join(FIGURES_DIR, 'fig5_hardware_setup.png'), dpi=300, bbox_inches='tight')
 plt.close()
 
-print("\n" + "="*80)
-print("✅ All publication plots generated successfully!")
-print("="*80)
-print(f"\nGenerated figures in {FIGURES_DIR}:")
-print("   1️⃣  fig1_detection_delay.png (Box plot: DET1 vs DET2)")
-print("   2️⃣  fig2_latency_comparison.png (Bar chart: A0 vs A1 vs A2)")
-print("   3️⃣  fig3_recovery_time_heatmap.png (Heatmap: Recovery dynamics)")
-print("   4️⃣  fig4_pareto_front.png (Scatter: Delay vs FPR trade-off)")
-print("   5️⃣  fig5_hardware_setup.png (Architecture diagram)")
-print("\nAll figures: 300 DPI, publication-ready PNG format")
-print("="*80 + "\n")
+print("Terminado")

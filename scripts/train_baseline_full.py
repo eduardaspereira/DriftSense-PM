@@ -1,3 +1,12 @@
+"""
+Descrição: Treino do modelo baseline e benchmark de detetores.
+Autores: Eduarda Pereira, Gonçalo Ferreira, Gonçalo Magalhães
+
+Este script treina vários detectores (IsolationForest, One-Class SVM, LOF),
+executa um benchmark sobre janelas de teste e exporta o modelo vencedor e
+o scaler para uso posterior na avaliação factorial.
+"""
+
 import os
 import yaml
 import pandas as pd
@@ -31,7 +40,7 @@ for folder in [FIGURES_DIR, METRICS_DIR, MODELS_DIR]:
 target_names = ['Anomalia/Drift (-1)', 'Normal (1)']
 
 # 2. CARREGAMENTO E SPLIT (D0 - 100% Normal)
-print("📂 A carregar dados e preparar o Benchmark...")
+print("A c  arregar dados e preparar o Benchmark...")
 caminho_d0 = os.path.join(PROCESSED_DIR, "D0_dataset_features.csv")
 df_d0 = pd.read_csv(caminho_d0)
 
@@ -54,7 +63,7 @@ X_test = pd.concat([X_test_normal] + [anom[0] for anom in test_anomalies], ignor
 y_test = np.concatenate([y_test_normal] + [anom[1] for anom in test_anomalies])
 
 # 4. NORMALIZAÇÃO (VITAL PARA SVM/LOF)
-print("⚖️ A normalizar features...")
+print("A normalizar features...")
 scaler = StandardScaler()
 X_train_scaled = scaler.fit_transform(X_train)
 X_test_scaled = scaler.transform(X_test)
@@ -66,7 +75,7 @@ models = {
     "Local Outlier Factor": LocalOutlierFactor(n_neighbors=20, contamination=0.01, novelty=True)
 }
 
-print(f"🔬 A iniciar Benchmark em {len(X_test)} janelas de teste...")
+print(f"A iniciar Benchmark em {len(X_test)} janelas de teste...")
 
 # 6. AVALIAR TODOS OS MODELOS E ESCOLHER O MELHOR
 best_model = None
@@ -90,7 +99,7 @@ for name, model in models.items():
             parts = line.split()
             f1_weighted = float(parts[-2])  # F1 score está penúltima coluna
             model_results[name] = f1_weighted
-            print(f"✅ {name} F1 (weighted): {f1_weighted:.3f}")
+            print(f"{name} F1 (weighted): {f1_weighted:.3f}")
             
             if f1_weighted > best_f1_score:
                 best_f1_score = f1_weighted
@@ -111,16 +120,14 @@ for name, model in models.items():
 
 # 7. EXPORTAR O VENCEDOR COM JUSTIFICAÇÃO 
 print(f"\n{'='*60}")
-print(f"🏆 VENCEDOR SELECIONADO: {best_model_name}")
+print(f"VENCEDOR SELECIONADO: {best_model_name}")
 print(f"   F1-Score (weighted): {best_f1_score:.3f}")
 for name, f1 in model_results.items():
-    status = "✅ VENCEDOR" if name == best_model_name else f"❌ (F1={f1:.3f})"
+    status = "VENCEDOR" if name == best_model_name else f"(F1={f1:.3f})"
     print(f"   - {name}: {status}")
 print(f"{'='*60}\n")
 
 joblib.dump(best_model, os.path.join(MODELS_DIR, 'baseline_model.pkl'))
 joblib.dump(scaler, os.path.join(MODELS_DIR, 'scaler.pkl'))
-print(f"💾 VENCEDOR EXPORTADO: {best_model_name}")
+print(f"VENCEDOR EXPORTADO: {best_model_name}")
 print(f"   Modelo e Scaler guardados em {MODELS_DIR}")
-
-print("\n🚀 TUDO PRONTO! Agora podes correr o 'run_detectors.py'.")

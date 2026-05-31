@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 """
-Gerar Gráficos de Medições de Consumo Energético - DriftSense-PM
-=================================================================
+Descrição: Geração de gráficos a partir de medições de consumo energético.
+Autores: Eduarda Pereira, Gonçalo Ferreira, Gonçalo Magalhães
 
-Cria visualizações de dados de consumo para análise e paper.
+Este módulo gera figuras (PNG) com visualizações de energia, potência,
+corrente, distribuições e análises por fases para suportar a análise
+experimental e figuras para publicação.
 
 Uso:
     python plot_power_measurements.py power_measurements_fnirsi.csv
@@ -32,7 +34,6 @@ def plot_power_over_time(df, output_dir):
     ax.plot(df['duration_sec']/3600, df['power_w'], 
             linewidth=1.5, color='#2E86AB', alpha=0.8, label='Potência instantânea')
     
-    # Média móvel (60 pontos = ~1 min)
     window_size = min(60, len(df) // 10)
     if window_size > 1:
         ax.plot(df['duration_sec']/3600, df['power_w'].rolling(window=window_size).mean(),
@@ -48,7 +49,7 @@ def plot_power_over_time(df, output_dir):
     plt.tight_layout()
     output_file = Path(output_dir) / 'power_vs_time.png'
     plt.savefig(output_file, dpi=300, bbox_inches='tight')
-    print(f"✅ Guardado: {output_file}")
+    print(f"Guardado: {output_file}")
     plt.close()
 
 
@@ -74,7 +75,7 @@ def plot_energy_accumulated(df, output_dir):
     plt.tight_layout()
     output_file = Path(output_dir) / 'energy_accumulated.png'
     plt.savefig(output_file, dpi=300, bbox_inches='tight')
-    print(f"✅ Guardado: {output_file}")
+    print(f"Guardado: {output_file}")
     plt.close()
 
 
@@ -113,7 +114,7 @@ def plot_distributions(df, output_dir):
     plt.tight_layout()
     output_file = Path(output_dir) / 'distributions.png'
     plt.savefig(output_file, dpi=300, bbox_inches='tight')
-    print(f"✅ Guardado: {output_file}")
+    print(f"Guardado: {output_file}")
     plt.close()
 
 
@@ -166,7 +167,7 @@ def plot_phase_analysis(df, output_dir):
     plt.tight_layout()
     output_file = Path(output_dir) / 'phase_analysis.png'
     plt.savefig(output_file, dpi=300, bbox_inches='tight')
-    print(f"✅ Guardado: {output_file}")
+    print(f"Guardado: {output_file}")
     plt.close()
 
 
@@ -268,7 +269,7 @@ def plot_statistics_summary(df, output_dir):
             bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
     
     plt.savefig(Path(output_dir) / 'statistics_summary.png', dpi=300, bbox_inches='tight')
-    print(f"✅ Guardado: {Path(output_dir) / 'statistics_summary.png'}")
+    print(f"Guardado: {Path(output_dir) / 'statistics_summary.png'}")
     plt.close()
 
 
@@ -294,7 +295,7 @@ def plot_current_vs_time(df, output_dir):
     plt.tight_layout()
     output_file = Path(output_dir) / 'current_vs_time.png'
     plt.savefig(output_file, dpi=300, bbox_inches='tight')
-    print(f"✅ Guardado: {output_file}")
+    print(f"Guardado: {output_file}")
     plt.close()
 
 
@@ -318,29 +319,25 @@ def main():
     try:
         df = pd.read_csv(args.csv_file)
     except FileNotFoundError:
-        print(f"❌ Ficheiro não encontrado: {args.csv_file}")
+        print(f"Ficheiro não encontrado: {args.csv_file}")
         sys.exit(1)
     
     if len(df) == 0:
-        print("❌ Ficheiro CSV vazio")
+        print("Ficheiro CSV vazio")
         sys.exit(1)
     
-    print(f"\n📊 Gerando gráficos a partir de {args.csv_file}")
-    print(f"📁 Saída: {args.output_dir}")
+    print(f"\nA gerar gráficos a partir de {args.csv_file}")
+    print(f"Saída: {args.output_dir}")
     
     ensure_dir(args.output_dir)
     
     # Gerar gráficos
-    print("\n🎨 Gerando visualizações...")
     plot_power_over_time(df, args.output_dir)
     plot_energy_accumulated(df, args.output_dir)
     plot_current_vs_time(df, args.output_dir)
     plot_distributions(df, args.output_dir)
     plot_phase_analysis(df, args.output_dir)
     plot_statistics_summary(df, args.output_dir)
-    
-    print(f"\n✅ Todos os gráficos foram gerados em: {args.output_dir}")
-
 
 if __name__ == '__main__':
     main()

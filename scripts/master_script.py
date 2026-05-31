@@ -1,3 +1,14 @@
+#!/usr/bin/env python3
+"""
+Descrição: Script de simulação para avaliação factorial do DriftSense-PM.
+Autores: Eduarda Pereira, Gonçalo Ferreira, Gonçalo Magalhães
+
+Este script executa a avaliação factorial completa sobre cenários processados,
+aplicando detectores e estratégias de adaptação para medir latências,
+delays e tempos de recuperação. Destina-se a correr em ambientes de validação
+e em Edge (ex.: Raspberry Pi) para estimativas de custo/latência.
+"""
+
 import pandas as pd
 import numpy as np
 import os
@@ -23,7 +34,7 @@ try:
     with open('../configs/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
 except FileNotFoundError:
-    print("❌ Erro: Ficheiro config.yaml não encontrado.")
+    print("Erro: Ficheiro config.yaml não encontrado.")
     exit()
 
 PROCESSED_DIR = config['paths']['processed_dir']
@@ -41,18 +52,17 @@ BUFFER_SIZE = config.get('adaptation', {}).get('a2_lightweight', {}).get('buffer
 
 caminho_ref = [f for f in os.listdir(PROCESSED_DIR) if f.startswith('D0_')][0]
 
-# --- 2. FUNÇÃO CORE DO SIMULADOR ---
+# --- 2. SIMULADOR ---
 def simulate_stream(file_name, detector_type, adaptation_type):
     """Simula o fluxo: Previsão -> Deteção -> Adaptação -> Recuperação"""
     
-    # 1. Carregar Estado Inicial Puro (Baseline D0)
+    # 1. Carregar Estado Inicial (Baseline D0)
     model = joblib.load(os.path.join(MODELS_DIR, 'baseline_model.pkl'))
     scaler = joblib.load(os.path.join(MODELS_DIR, 'scaler.pkl'))
     
     df_ref = pd.read_csv(os.path.join(PROCESSED_DIR, caminho_ref))
     ref_vibracao = df_ref['AccX_RMS'].values
     
-    # 2. Carregar o fluxo do cenário atual
     df = pd.read_csv(os.path.join(PROCESSED_DIR, file_name))
     features_cols = [c for c in df.columns if c not in ['Scenario', 'Timestamp', 'SysState', 'SampleCount']]
     
@@ -126,7 +136,7 @@ def simulate_stream(file_name, detector_type, adaptation_type):
             recovery_start_idx = i
             consecutive_normal_predictions = 0
 
-        # --- FASE 3: MÉTRICA DE RECUPERAÇÃO CORRIGIDA ---
+        # --- FASE 3: MÉTRICA DE RECUPERAÇÃO  ---
         if is_recovering and recovery_time is None:
             if y_pred == 1:
                 consecutive_normal_predictions += 1
@@ -143,7 +153,7 @@ def simulate_stream(file_name, detector_type, adaptation_type):
 
 
 
-# --- 3. EXECUTAR A MATRIZ FATORIAL COMPLETA ---
+# --- 3. EXECUTAR A MATRIZ FATORIAL  ---
 scenarios = [f for f in os.listdir(PROCESSED_DIR) if f.endswith('.csv') and not f.startswith('D5')]
 scenarios.insert(0, caminho_ref)
 
@@ -151,19 +161,14 @@ detectors = ['DET1', 'DET2']
 adaptations_list = ['A1']
 results = []
 
-print(f"🔬 A iniciar Matriz Fatorial... ({REPETITIONS} repetições por combinação)")
-print(f"📊 Total de configurações: {len(scenarios)} cenários × 3 detectores × 3 adaptações = {len(scenarios) * 3 * 3} configs básicas")
-print(f"🔁 Com {REPETITIONS} repetições: {len(scenarios) * 3 * 3 * REPETITIONS} linhas esperadas no output\n")
+print(f"A iniciar Matriz Fatorial... ({REPETITIONS} repetições por combinação)")
+print(f"Total de configurações: {len(scenarios)} cenários × 3 detectores × 3 adaptações = {len(scenarios) * 3 * 3} configs básicas")
+print(f"Com {REPETITIONS} repetições: {len(scenarios) * 3 * 3 * REPETITIONS} linhas esperadas no output\n")
 
 for csv in sorted(scenarios):
     scenario_name = csv.split('_dataset')[0]
     for det in detectors:
         for adapt in adaptations_list:
-            
-            # CORREÇÃO: Incluir DET0+A2 como controlo (sem deteção, mas com adaptação leve periódica)
-            # Isto é necessário para o fatorial completo segundo o workplan
-            
-            # CORREÇÃO: Guardar cada repetição como linha separada (não apenas média)
             for rep in range(REPETITIONS):
                 idx, lat, rec = simulate_stream(csv, det, adapt)
                 
@@ -180,7 +185,7 @@ for csv in sorted(scenarios):
 # --- 4. EXPORTAR RESULTADOS ---
 df_res = pd.DataFrame(results)
 print("\n" + "="*80)
-print("📊 MATRIZ DE RESULTADOS FINAIS (Deteção + Adaptação)")
+print("MATRIZ DE RESULTADOS FINAIS (Deteção + Adaptação)")
 print("="*80)
 print(df_res.to_string(index=False))
 
@@ -188,11 +193,8 @@ output_path = os.path.join(RESULTS_DIR, 'full_factorial_results.csv')
 df_res.to_csv(output_path, index=False)
 
 print("\n" + "="*80)
-print(f"✅ MATRIZ FATORIAL COMPLETA!")
-print("="*80)
-print(f"📁 Ficheiro salvo: {output_path}")
-print(f"📈 Linhas no ficheiro: {len(df_res)}")
-print(f"🎯 Cenários únicos: {df_res['Scenario'].nunique()}")
-print(f"🔍 Detectores: {', '.join(df_res['Detector'].unique())}")
-print(f"⚙️  Adaptações: {', '.join(df_res['Adaptation'].unique())}")
-print("="*80 + "\n")
+print(f"MATRIZ FATORIAL COMPLETA!")
+print(f"Linhas no ficheiro: {len(df_res)}")
+print(f"Cenários únicos: {df_res['Scenario'].nunique()}")
+print(f"Detectores: {', '.join(df_res['Detector'].unique())}")
+print(f"Adaptações: {', '.join(df_res['Adaptation'].unique())}")

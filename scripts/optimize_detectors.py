@@ -1,3 +1,12 @@
+"""
+Descrição: Otimização de parâmetros dos detectores (grelha de procura).
+Autores: Eduarda Pereira, Gonçalo Ferreira, Gonçalo Magalhães
+
+Executa uma grid-search simples sobre limiares de KS e persistência para
+avaliar trade-offs entre taxa de falsos positivos (D0) e atrasos de deteção
+em cenários com drift.
+"""
+
 import pandas as pd
 import numpy as np
 import os
@@ -22,7 +31,7 @@ caminho_ref = [f for f in os.listdir(PROCESSED_DIR) if f.startswith('D0_')][0]
 df_ref = pd.read_csv(os.path.join(PROCESSED_DIR, caminho_ref))
 ref_vibracao = df_ref['AccX_RMS'].values
 
-# --- GRELHA DE TESTE (Podes ajustar estes valores) ---
+# --- GRELHA DE TESTE ---
 PERSISTENCE_GRID = [5, 10, 15, 20, 30]
 ALPHA_KS_GRID = [0.01, 0.001, 0.0001, 1e-05, 1e-06]
 WINDOW_SIZE = 20
@@ -30,11 +39,11 @@ WINDOW_SIZE = 20
 def evaluate(csv_file, p_val_thresh, persist_val):
     df = pd.read_csv(os.path.join(PROCESSED_DIR, csv_file))
     features = [c for c in df.columns if c not in ['Scenario', 'Timestamp', 'SysState', 'SampleCount']]
-    
+
     det1_idx, det2_idx = None, None
     consecutive_alarms = 0
     window_vib = []
-    
+
     for i in range(len(df)):
         X_curr = scaler.transform(df.iloc[[i]][features])
         y_pred = model.predict(X_curr)[0]
@@ -47,35 +56,35 @@ def evaluate(csv_file, p_val_thresh, persist_val):
             if y_pred == -1: consecutive_alarms += 1
             else: consecutive_alarms = 0
             if consecutive_alarms >= persist_val: det1_idx = i
-        
+
         # DET2 Logic
         if det2_idx is None and len(window_vib) == WINDOW_SIZE:
             _, p = ks_2samp(ref_vibracao, window_vib)
             if p < p_val_thresh: det2_idx = i
-            
+
     return det1_idx, det2_idx
 
 # 2. LOOP DE OTIMIZAÇÃO
 results = []
 scenarios = [f for f in os.listdir(PROCESSED_DIR) if f.endswith('.csv')]
 
-print("🔎 A iniciar Grid Search de Parâmetros... Isto pode demorar um pouco.")
+print("A iniciar Grid Search de Parâmetros...")
 
 for p_val in ALPHA_KS_GRID:
     for persist in PERSISTENCE_GRID:
         fps_det1, fps_det2 = 0, 0
         delays_det1, delays_det2 = [], []
-        
+
         for csv in scenarios:
             d1, d2 = evaluate(csv, p_val, persist)
-            
+
             if "D0" in csv:
                 if d1 is not None: fps_det1 += 1
                 if d2 is not None: fps_det2 += 1
             else:
                 if d1 is not None: delays_det1.append(d1)
                 if d2 is not None: delays_det2.append(d2)
-        
+
         results.append({
             'Alpha_KS': p_val,
             'Persistence': persist,
@@ -90,7 +99,7 @@ df_opt = pd.DataFrame(results)
 # Ordenar pela melhor combinação para o DET1 (Zero Falsos Positivos e menor atraso)
 df_opt = df_opt.sort_values(by=['DET1_FPR', 'DET1_AvgDelay'])
 
-print("\n🏆 TOP 5 Melhores Configurações (Ordenado por Performance DET1):")
+print("\nTOP 5 Melhores Configurações (Ordenado por Performance DET1):")
 print(df_opt.head(5).to_string(index=False))
 
 # Guardar para o relatório

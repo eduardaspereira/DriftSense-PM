@@ -1,12 +1,12 @@
 # ==========================================
-# DriftSense-PM: Master Configuration File
+# DriftSense-PM: Configuration File
 # ==========================================
 
 system:
   serial_port: '/dev/ttyACM0'
   baud_rate: 115200
   sampling_rate_hz: 2.0
-  dataset_version: "v1.0" # Congelado conforme as regras da Week 4
+  dataset_version: "v1.0" 
 
 experiment:
   scenario_id: "D0"       # Cenário a correr atualmente (D0, D1, ..., D5)

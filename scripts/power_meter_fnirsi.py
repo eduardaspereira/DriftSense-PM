@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 """
-FNIRSI-FNB58 Power Meter Data Logger - VERSÃO WINDOWS
-=====================================================
+Descrição: Logger para o medidor de energia FNIRSI-FNB58 (versão cross-OS).
+Autores: Eduarda Pereira, Gonçalo Ferreira, Gonçalo Magalhães
 
-Captura dados de consumo energético do FNIRSI-FNB58 para uso em Windows.
+Este módulo fornece uma interface para capturar leituras do medidor FNIRSI
+e guardar num CSV. Adaptações foram feitas para suportar Windows, Linux e Mac
+quando possível.
 
 Uso (Windows):
     python power_meter_fnirsi_windows.py --output power_measurements.csv --duration 11400
@@ -28,7 +30,7 @@ try:
     import usb.core
     import usb.util
 except ImportError:
-    print("❌ Erro: pyusb não instalado.")
+    print("Erro: pyusb não instalado.")
     if platform.system() == "Windows":
         print("   Execute no PowerShell (como Administrator):")
         print("   pip install pyusb")
@@ -73,13 +75,13 @@ class FNIRSIPowerMeter:
         
         if not self.device:
             raise RuntimeError(
-                f"❌ Dispositivo FNIRSI não encontrado!\n"
+                f"Dispositivo FNIRSI não encontrado!\n"
                 f"   Verifique a ligação USB.\n"
                 f"   Em Windows: Abra Gestor de Dispositivos e procure por 'FNIRSI' ou 'STMicroelectronics'"
             )
         
         device_type = "FNB58/FNB48S" if self.is_fnb58_or_fnb48s else "FNB48/C1"
-        print(f"✅ Dispositivo {device_type} encontrado")
+        print(f"Dispositivo {device_type} encontrado")
         
         # Em Windows, não é necessário desanexar kernel driver
         # Mas em Linux/Mac, podemos tentar se necessário
@@ -92,7 +94,7 @@ class FNIRSIPowerMeter:
         except usb.core.USBError as e:
             if "Resource busy" in str(e):
                 raise RuntimeError(
-                    f"❌ Dispositivo ocupado (Resource busy).\n"
+                    f"Dispositivo ocupado (Resource busy).\n"
                     f"   Em Windows: Reinicie o PC ou desconecte/reconecte o USB.\n"
                     f"   Em Linux: Execute: sudo bash cleanup_usb.sh"
                 )
@@ -125,11 +127,11 @@ class FNIRSIPowerMeter:
         )
         
         if not self.ep_in or not self.ep_out:
-            raise RuntimeError("❌ Endpoints USB não encontrados")
+            raise RuntimeError("Endpoints USB não encontrados")
         
         self._request_data()
         self.start_time = time.time()
-        print(f"✅ Comunicação iniciada ({self.os_name}). Começando captura de dados...")
+        print(f"Comunicação iniciada ({self.os_name}). Começando captura de dados...")
     
     def _try_detach_kernel_driver(self):
         """Tentar desanexar kernel driver (apenas Linux/Mac)"""
@@ -139,7 +141,7 @@ class FNIRSIPowerMeter:
                     if self.device.is_kernel_driver_active(interface.bInterfaceNumber):
                         try:
                             self.device.detach_kernel_driver(interface.bInterfaceNumber)
-                            print(f"✅ Kernel driver desanexado")
+                            print(f"Kernel driver desanexado")
                         except usb.core.USBError as e:
                             if "not supported" not in str(e).lower():
                                 pass  # Ignorar e continuar
@@ -264,13 +266,13 @@ def save_to_csv(samples, output_file):
                 writer.writeheader()
             writer.writerows(samples)
     except IOError as e:
-        print(f"❌ Erro ao escrever CSV: {e}")
+        print(f"Erro ao escrever CSV: {e}")
 
 
 def print_statistics(meter: FNIRSIPowerMeter):
     """Imprimir estatísticas de consumo"""
     print("\n" + "=" * 70)
-    print("📊 ESTATÍSTICAS DE CONSUMO ENERGÉTICO")
+    print("ESTATÍSTICAS DE CONSUMO ENERGÉTICO")
     print("=" * 70)
     print(f"Amostras recolhidas: {meter.sample_count:,}")
     print(f"Duração: {meter.sample_count / meter.sps / 60:.1f} min")
@@ -317,10 +319,7 @@ def main():
         last_write_time = start_time
         batch_samples = []
         
-        print(f"💾 Guardando dados em: {args.output}")
-        print(f"⏱️  Duração máxima: {args.duration}s = {args.duration/3600:.1f}h")
-        print(f"📝 Intervalo de escrita: {args.interval}s")
-        print(f"🖥️  Sistema operativo: {platform.system()}\n")
+        print(f"Intervalo de escrita: {args.interval}s")
         
         while time.time() - start_time < args.duration:
             try:
@@ -351,14 +350,14 @@ def main():
                 time.sleep(0.01)
                 
             except KeyboardInterrupt:
-                print("\n\n⚠️  Captura interrompida pelo utilizador")
+                print("\n\nCaptura interrompida pelo utilizador")
                 break
             except usb.core.USBError as e:
-                print(f"❌ Erro USB: {e}")
+                print(f"Erro USB: {e}")
                 print("   Verifique a ligação do power meter e tente novamente")
                 break
             except Exception as e:
-                print(f"❌ Erro: {e}")
+                print(f"Erro: {e}")
                 break
         
         # Escrever dados finais
@@ -366,23 +365,23 @@ def main():
             save_to_csv(batch_samples, args.output)
         
         print_statistics(meter)
-        print(f"✅ Dados guardados em: {Path(args.output).absolute()}")
+        print(f"Dados guardados em: {Path(args.output).absolute()}")
         
     except RuntimeError as e:
         print(str(e))
         sys.exit(1)
     except Exception as e:
-        print(f"❌ Erro inesperado: {e}")
+        print(f"Erro inesperado: {e}")
         import traceback
         traceback.print_exc()
         sys.exit(1)
     finally:
         meter.disconnect()
-        print("✅ Desligado com sucesso")
+        print("Desligado com sucesso")
 
 
 if __name__ == '__main__':
     print("\n" + "=" * 70)
-    print("🔌 FNIRSI-FNB58 Power Meter Capture - Windows/Multi-platform")
+    print("FNIRSI-FNB58 Power Meter Capture")
     print("=" * 70 + "\n")
     main()

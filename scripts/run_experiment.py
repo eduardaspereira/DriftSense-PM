@@ -1,3 +1,12 @@
+"""
+Descrição: Logger e controlador para aquisição de dados raw a partir do sistema.
+Autores: Eduarda Pereira, Gonçalo Ferreira, Gonçalo Magalhães
+
+Este script comunica com o microcontrolador via serial, lê sensores e grava
+os dados raw em CSV com um cabeçalho consistente. Inclui controlos GPIO para
+simular um sistema de teste (LEDs, ventoinha, botão).
+"""
+
 import serial
 import time
 import re

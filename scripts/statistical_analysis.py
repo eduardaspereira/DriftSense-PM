@@ -1,12 +1,11 @@
 """
-Statistical Analysis for DriftSense-PM Factorial Results
-=========================================================
+Descrição: Análise estatística de resultados experimentais do DriftSense-PM.
+Autores: Eduarda Pereira, Gonçalo Ferreira, Gonçalo Magalhães
 
-Computes Mean ± Std, Confidence Intervals (95%), and Significance Tests
-(Wilcoxon signed-rank, ANOVA) for full factorial experiment results.
-
-Author: Eduarda Pereira, Gonçalo Ferreira, Gonçalo Magalhães
-Date: May 7, 2026
+Este módulo calcula estatísticas resumo (Média ± Desvio), intervalos de
+confiança de 95% e executa testes de hipótese (Wilcoxon, ANOVA) sobre os
+resultados da matriz factorial completa. Os resultados são guardados em CSVs
+para posterior relatório e análise.
 """
 
 import sys
@@ -32,7 +31,7 @@ def load_factorial_results(filename='full_factorial_results.csv'):
         raise FileNotFoundError(f"Ficheiro não encontrado: {path}")
     
     df = pd.read_csv(path)
-    print(f"✅ Carregado: {len(df)} linhas de {filename}")
+    print(f"Carregado: {len(df)} linhas de {filename}")
     return df
 
 def compute_summary_statistics(df):
@@ -50,7 +49,7 @@ def compute_summary_statistics(df):
     # Flatten column names
     summary.columns = ['_'.join(col).strip() for col in summary.columns.values]
     
-    print(f"✅ Sumário estatístico calculado para {len(summary)} grupos")
+    print(f"Sumário estatístico calculado para {len(summary)} grupos")
     return summary
 
 def compute_confidence_intervals(df, confidence=0.95):
@@ -80,7 +79,7 @@ def compute_confidence_intervals(df, confidence=0.95):
             })
     
     ci_df = pd.DataFrame(ci_data)
-    print(f"✅ Intervalos de confiança 95% calculados para {len(ci_df)} grupos")
+    print(f"Intervalos de confiança 95% calculados para {len(ci_df)} grupos")
     return ci_df
 
 def wilcoxon_test(df):
@@ -112,7 +111,7 @@ def wilcoxon_test(df):
             })
     
     wilcoxon_df = pd.DataFrame(wilcoxon_results)
-    print(f"✅ Teste Wilcoxon completado para {len(wilcoxon_df)} cenários")
+    print(f"Teste Wilcoxon completado para {len(wilcoxon_df)} cenários")
     return wilcoxon_df
 
 def adaptation_comparison(df):
@@ -139,7 +138,7 @@ def adaptation_comparison(df):
             lambda x: 1.0 if x == 'A1' else (speedup if x == 'A2' else 1.0)
         )
     
-    print(f"✅ Comparação de adaptações completada para {len(adaptation_stats)} estratégias")
+    print(f"Comparação de adaptações completada para {len(adaptation_stats)} estratégias")
     return adaptation_stats
 
 def save_results(summary, ci, wilcoxon_df, adaptation_df):
@@ -148,40 +147,40 @@ def save_results(summary, ci, wilcoxon_df, adaptation_df):
     os.makedirs(RESULTS_DIR, exist_ok=True)
     
     summary.to_csv(os.path.join(RESULTS_DIR, 'full_factorial_summary.csv'))
-    print(f"✅ Salvo: full_factorial_summary.csv")
+    print(f"Salvo: full_factorial_summary.csv")
     
     ci.to_csv(os.path.join(RESULTS_DIR, 'confidence_intervals.csv'), index=False)
-    print(f"✅ Salvo: confidence_intervals.csv")
+    print(f"Salvo: confidence_intervals.csv")
     
     wilcoxon_df.to_csv(os.path.join(RESULTS_DIR, 'wilcoxon_tests.csv'), index=False)
-    print(f"✅ Salvo: wilcoxon_tests.csv")
+    print(f"Salvo: wilcoxon_tests.csv")
     
     adaptation_df.to_csv(os.path.join(RESULTS_DIR, 'adaptation_comparison.csv'), index=False)
-    print(f"✅ Salvo: adaptation_comparison.csv")
+    print(f"Salvo: adaptation_comparison.csv")
 
 def print_summary_report(wilcoxon_df, adaptation_df):
     """Print summary report"""
     
     print("\n" + "="*80)
-    print("📊 RELATÓRIO DE ANÁLISE ESTATÍSTICA - DriftSense-PM")
+    print("RELATÓRIO DE ANÁLISE ESTATÍSTICA - DriftSense-PM")
     print("="*80)
     
-    print("\n🔬 TESTE WILCOXON (DET1 vs DET2):")
+    print("\nTESTE WILCOXON (DET1 vs DET2):")
     print("-" * 80)
     print(wilcoxon_df.to_string(index=False))
     
-    print("\n⚡ COMPARAÇÃO DE ADAPTAÇÕES:")
+    print("\nCOMPARAÇÃO DE ADAPTAÇÕES:")
     print("-" * 80)
     print(adaptation_df.to_string(index=False))
     
     print("\n" + "="*80)
-    print("✅ Análise estatística concluída!")
+    print("Análise estatística concluída!")
     print("="*80 + "\n")
 
 def main():
     """Main execution"""
     
-    print("🚀 Iniciando Análise Estatística...")
+    print("Iniciando Análise Estatística...")
     print("-" * 80)
     
     # Load results
@@ -199,7 +198,7 @@ def main():
     # Print report
     print_summary_report(wilcoxon_df, adaptation_df)
     
-    print("✅ Análise concluída com sucesso!")
+    print("Análise concluída com sucesso!")
 
 if __name__ == "__main__":
     main()

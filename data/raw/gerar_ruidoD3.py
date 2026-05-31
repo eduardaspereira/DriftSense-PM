@@ -1,3 +1,12 @@
+"""
+Descrição: Gerar o cenário D3 a partir de D0 adicionando ruído e viés.
+Autores: Eduarda Pereira, Gonçalo Ferreira, Gonçalo Magalhães
+
+Script de utilidade que cria um novo ficheiro `D3_dataset.csv` simulando
+perda de calibração e ruído adicional nas medições de vibração. Mantém
+semente aleatória para reprodutibilidade.
+"""
+
 import pandas as pd
 import numpy as np
 

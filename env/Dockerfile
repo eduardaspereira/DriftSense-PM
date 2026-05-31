@@ -1,6 +1,6 @@
 FROM python:3.11-slim
 
-LABEL maintainer="Eduarda Pereira, Gonçalo Ferreira, Gonçalo Magalhães <edp@uminho.pt>"
+LABEL maintainer="Eduarda Pereira, Gonçalo Ferreira, Gonçalo Magalhães"
 LABEL description="DriftSense-PM: Drift-Aware Predictive Maintenance Benchmark"
 
 WORKDIR /app
