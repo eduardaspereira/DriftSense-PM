@@ -1,0 +1,13 @@
+Métrica,Valor
+Modelo,IsolationForest
+Contamination_Pct,1.00
+Train_Split_Pct,80
+Total_Features,26
+Amostras_Treino,95
+Anomalias_Treino,1
+Normais_Treino,94
+Taxa_Anomalias_Treino_Pct,1.05
+Amostras_Teste,24
+Anomalias_Teste,0
+Normais_Teste,24
+Taxa_Anomalias_Teste_Pct,0.00
