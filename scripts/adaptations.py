@@ -15,6 +15,7 @@ import os
 import joblib
 from sklearn.ensemble import IsolationForest
 from sklearn.preprocessing import StandardScaler
+from sklearn.svm import OneClassSVM
 import warnings
 
 warnings.filterwarnings('ignore')
@@ -50,7 +51,7 @@ def apply_a1_periodic_retrain(X_buffer_new, processed_dir):
     new_scaler = StandardScaler()
     X_scaled = new_scaler.fit_transform(X_combined)
 
-    new_model = IsolationForest(n_estimators=100, contamination=0.01, random_state=42)
+    new_model = OneClassSVM(kernel='rbf', nu=0.05, gamma='auto')
     new_model.fit(X_scaled)
 
     latency_ms = (time.time() - start_time) * 1000
@@ -69,7 +70,7 @@ def apply_a2_lightweight_adapt(X_buffer_new):
     X_scaled = new_scaler.fit_transform(X_buffer_new)
 
     # 2. Modelo rápido (poucas árvores)
-    new_model = IsolationForest(n_estimators=10, contamination=0.01, random_state=42)
+    new_model = OneClassSVM(kernel='rbf', nu=0.05, gamma='auto')
     new_model.fit(X_scaled)
 
     latency_ms = (time.time() - start_time) * 1000

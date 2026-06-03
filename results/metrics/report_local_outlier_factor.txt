@@ -1,9 +1,9 @@
 Modelo: Local Outlier Factor
                      precision    recall  f1-score   support
 
-Anomalia/Drift (-1)      0.984     0.625     0.765       595
-         Normal (1)      0.075     0.750     0.136        24
+Anomalia/Drift (-1)      0.985     0.775     0.867       595
+         Normal (1)      0.113     0.708     0.194        24
 
-           accuracy                          0.630       619
-          macro avg      0.529     0.688     0.450       619
-       weighted avg      0.949     0.630     0.740       619
+           accuracy                          0.772       619
+          macro avg      0.549     0.742     0.531       619
+       weighted avg      0.951     0.772     0.841       619

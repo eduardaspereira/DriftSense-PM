@@ -1,0 +1,77 @@
+nohup: ignoring input
+
+Collecting usage statistics. To deactivate, set browser.gatherUsageStats to false.
+
+
+  You can now view your Streamlit app in your browser.
+
+  Local URL: http://localhost:8501
+  Network URL: http://192.168.1.106:8501
+  External URL: http://82.155.203.178:8501
+
+2026-06-03 12:15:41.713 Uncaught app execution
+Traceback (most recent call last):
+  File "/home/user/projeto/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/exec_code.py", line 129, in exec_func_with_error_handling
+    result = func()
+  File "/home/user/projeto/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 689, in code_to_exec
+    exec(code, module.__dict__)  # noqa: S102
+    ~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/projeto/DriftSense-PM/app_principal.py", line 531, in <module>
+    data_normal = X_train[y_train_pred == 1, feature_idx]
+                  ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+IndexError: boolean index did not match indexed array along axis 0; size of axis is 464 but size of corresponding boolean axis is 571
+2026-06-03 12:15:42.020 Uncaught app execution
+Traceback (most recent call last):
+  File "/home/user/projeto/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/exec_code.py", line 129, in exec_func_with_error_handling
+    result = func()
+  File "/home/user/projeto/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 689, in code_to_exec
+    exec(code, module.__dict__)  # noqa: S102
+    ~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/projeto/DriftSense-PM/app_principal.py", line 531, in <module>
+    data_normal = X_train[y_train_pred == 1, feature_idx]
+                  ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+IndexError: boolean index did not match indexed array along axis 0; size of axis is 428 but size of corresponding boolean axis is 571
+2026-06-03 12:20:53.309 Uncaught app execution
+Traceback (most recent call last):
+  File "/home/user/projeto/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/exec_code.py", line 129, in exec_func_with_error_handling
+    result = func()
+  File "/home/user/projeto/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 689, in code_to_exec
+    exec(code, module.__dict__)  # noqa: S102
+    ~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/projeto/DriftSense-PM/app_principal.py", line 535, in <module>
+    data_normal = X_train[y_train_pred == 1, feature_idx]
+                  ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+IndexError: boolean index did not match indexed array along axis 0; size of axis is 71 but size of corresponding boolean axis is 428
+2026-06-03 12:21:05.710 Uncaught app execution
+Traceback (most recent call last):
+  File "/home/user/projeto/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/exec_code.py", line 129, in exec_func_with_error_handling
+    result = func()
+  File "/home/user/projeto/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 689, in code_to_exec
+    exec(code, module.__dict__)  # noqa: S102
+    ~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/projeto/DriftSense-PM/app_principal.py", line 535, in <module>
+    data_normal = X_train[y_train_pred == 1, feature_idx]
+                  ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+IndexError: boolean index did not match indexed array along axis 0; size of axis is 71 but size of corresponding boolean axis is 428
+2026-06-03 12:21:07.591 Uncaught app execution
+Traceback (most recent call last):
+  File "/home/user/projeto/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/exec_code.py", line 129, in exec_func_with_error_handling
+    result = func()
+  File "/home/user/projeto/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 689, in code_to_exec
+    exec(code, module.__dict__)  # noqa: S102
+    ~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/projeto/DriftSense-PM/app_principal.py", line 535, in <module>
+    data_normal = X_train[y_train_pred == 1, feature_idx]
+                  ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+IndexError: boolean index did not match indexed array along axis 0; size of axis is 71 but size of corresponding boolean axis is 428
+2026-06-03 12:21:27.759 Uncaught app execution
+Traceback (most recent call last):
+  File "/home/user/projeto/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/exec_code.py", line 129, in exec_func_with_error_handling
+    result = func()
+  File "/home/user/projeto/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 689, in code_to_exec
+    exec(code, module.__dict__)  # noqa: S102
+    ~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/projeto/DriftSense-PM/app_principal.py", line 535, in <module>
+    data_normal = X_train[y_train_pred == 1, feature_idx]
+                  ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+IndexError: boolean index did not match indexed array along axis 0; size of axis is 428 but size of corresponding boolean axis is 71

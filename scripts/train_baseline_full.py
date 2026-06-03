@@ -14,6 +14,7 @@ import numpy as np
 import joblib
 import matplotlib.pyplot as plt
 import seaborn as sns
+import argparse
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report, confusion_matrix
 from sklearn.ensemble import IsolationForest
@@ -24,15 +25,33 @@ import warnings
 
 warnings.filterwarnings('ignore')
 
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
+
+
+def resolve_project_path(path_value):
+    normalized = path_value.removeprefix("../")
+    return os.path.normpath(os.path.join(PROJECT_ROOT, normalized))
+
+parser = argparse.ArgumentParser(description="Treino offline dos 3 modelos de baseline.")
+parser.add_argument("--if-n-estimators", type=int, default=100)
+parser.add_argument("--if-contamination", type=float, default=0.1)
+parser.add_argument("--svm-nu", type=float, default=0.01)
+parser.add_argument("--svm-kernel", type=str, default="rbf")
+parser.add_argument("--svm-gamma", type=str, default="scale")
+parser.add_argument("--lof-n-neighbors", type=int, default=20)
+parser.add_argument("--lof-contamination", type=float, default=1.0)
+args = parser.parse_args()
+
 # 1. CONFIGURAÇÕES E PASTAS (Selo de Reprodutibilidade ACM)
-CONFIG_PATH = "../configs/config.yaml"
+CONFIG_PATH = resolve_project_path("../configs/config.yaml")
 with open(CONFIG_PATH, 'r') as f:
     config = yaml.safe_load(f)
 
-PROCESSED_DIR = config['paths']['processed_dir']
-FIGURES_DIR = config['paths']['figures_dir']
-METRICS_DIR = config['paths']['results_dir']
-MODELS_DIR = config['paths']['models_dir']
+PROCESSED_DIR = resolve_project_path(config['paths']['processed_dir'])
+FIGURES_DIR = resolve_project_path(config['paths']['figures_dir'])
+METRICS_DIR = resolve_project_path(config['paths']['results_dir'])
+MODELS_DIR = resolve_project_path(config['paths']['models_dir'])
 
 for folder in [FIGURES_DIR, METRICS_DIR, MODELS_DIR]:
     os.makedirs(folder, exist_ok=True)
@@ -40,8 +59,10 @@ for folder in [FIGURES_DIR, METRICS_DIR, MODELS_DIR]:
 target_names = ['Anomalia/Drift (-1)', 'Normal (1)']
 
 # 2. CARREGAMENTO E SPLIT (D0 - 100% Normal)
-print("A c  arregar dados e preparar o Benchmark...")
+print("A carregar dados e preparar o Benchmark...")
 caminho_d0 = os.path.join(PROCESSED_DIR, "D0_dataset_features.csv")
+if not os.path.exists(caminho_d0):
+    raise FileNotFoundError(f"Ficheiro de treino baseline não encontrado: {caminho_d0}")
 df_d0 = pd.read_csv(caminho_d0)
 
 X_d0 = df_d0.drop(['Scenario', 'Timestamp', 'SysState', 'SampleCount'], axis=1, errors='ignore')
@@ -70,9 +91,21 @@ X_test_scaled = scaler.transform(X_test)
 
 # 5. DEFINIÇÃO E LOOP DE TREINO
 models = {
-    "Isolation Forest": IsolationForest(n_estimators=100, contamination=0.001, random_state=42),
-    "One-Class SVM": OneClassSVM(nu=0.01, kernel="rbf", gamma='scale'),
-    "Local Outlier Factor": LocalOutlierFactor(n_neighbors=20, contamination=0.01, novelty=True)
+    "Isolation Forest": IsolationForest(
+        n_estimators=args.if_n_estimators,
+        contamination=args.if_contamination / 100,
+        random_state=42
+    ),
+    "One-Class SVM": OneClassSVM(
+        nu=args.svm_nu,
+        kernel=args.svm_kernel,
+        gamma=args.svm_gamma
+    ),
+    "Local Outlier Factor": LocalOutlierFactor(
+        n_neighbors=args.lof_n_neighbors,
+        contamination=args.lof_contamination / 100,
+        novelty=True
+    )
 }
 
 print(f"A iniciar Benchmark em {len(X_test)} janelas de teste...")

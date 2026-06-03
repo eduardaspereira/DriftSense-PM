@@ -98,7 +98,6 @@ for p_val in ALPHA_KS_GRID:
 df_opt = pd.DataFrame(results)
 # Ordenar pela melhor combinação para o DET1 (Zero Falsos Positivos e menor atraso)
 df_opt = df_opt.sort_values(by=['DET1_FPR', 'DET1_AvgDelay'])
-
 print("\nTOP 5 Melhores Configurações (Ordenado por Performance DET1):")
 print(df_opt.head(5).to_string(index=False))
 
