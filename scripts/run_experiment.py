@@ -109,9 +109,9 @@ def main():
                             
                             csv_file.flush()
 
-                # --- CONTROLO DA VENTOINHA ---
+                # --- VENTOINHA ---
                 if system_enabled:
-                    fan.forward(0.5)
+                    fan.forward(0.75)
                 else:
                     fan.stop()
 
