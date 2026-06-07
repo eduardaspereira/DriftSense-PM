@@ -1,0 +1,79 @@
+=== ESTRUTURA DOS FICHEIROS .MAT ===
+
+Ficheiro: B007_1_123.mat
+Colunas/Variáveis detetadas:
+  ->  X123RPM  (1x1)
+  ->  X123_DE_time  (487384x1)
+  ->  X123_FE_time  (487384x1)
+--------------------------------------------------
+
+Ficheiro: B014_1_190.mat
+Colunas/Variáveis detetadas:
+  ->  X190RPM  (1x1)
+  ->  X190_DE_time  (486224x1)
+  ->  X190_FE_time  (486224x1)
+--------------------------------------------------
+
+Ficheiro: B021_1_227.mat
+Colunas/Variáveis detetadas:
+  ->  X227RPM  (1x1)
+  ->  X227_DE_time  (486804x1)
+  ->  X227_FE_time  (486804x1)
+--------------------------------------------------
+
+Ficheiro: IR007_1_110.mat
+Colunas/Variáveis detetadas:
+  ->  X110RPM  (1x1)
+  ->  X110_DE_time  (486224x1)
+  ->  X110_FE_time  (486224x1)
+--------------------------------------------------
+
+Ficheiro: IR014_1_175.mat
+Colunas/Variáveis detetadas:
+  ->  X175RPM  (1x1)
+  ->  X175_DE_time  (381890x1)
+  ->  X175_FE_time  (381890x1)
+  ->  X217  (489125x2)
+  ->  X217_DE_time  (489125x1)
+--------------------------------------------------
+
+Ficheiro: IR021_1_214.mat
+Colunas/Variáveis detetadas:
+  ->  X214RPM  (1x1)
+  ->  X214_DE_time  (485063x1)
+  ->  X214_FE_time  (485063x1)
+--------------------------------------------------
+
+Ficheiro: OR007_6_1_136.mat
+Colunas/Variáveis detetadas:
+  ->  X136RPM  (1x1)
+  ->  X136_DE_time  (486804x1)
+  ->  X136_FE_time  (486804x1)
+--------------------------------------------------
+
+Ficheiro: OR014_6_1_202.mat
+Colunas/Variáveis detetadas:
+  ->  X202RPM  (1x1)
+  ->  X202_DE_time  (484483x1)
+  ->  X202_FE_time  (484483x1)
+--------------------------------------------------
+
+Ficheiro: OR021_6_1_239.mat
+Colunas/Variáveis detetadas:
+  ->  X239RPM  (1x1)
+  ->  X239_DE_time  (489125x1)
+  ->  X239_FE_time  (489125x1)
+--------------------------------------------------
+
+Ficheiro: Time_Normal_1_098.mat
+Colunas/Variáveis detetadas:
+  ->  X098_DE_time  (483903x1)
+  ->  X098_FE_time  (483903x1)
+--------------------------------------------------
+=== ESTRUTURA DOS FICHEIROS .NPZ ===
+
+Ficheiro: CWRU_48k_load_1_CNN_data.npz
+Colunas/Chaves detetadas:
+  ->  data
+  ->  labels
+--------------------------------------------------

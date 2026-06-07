@@ -1,0 +1,24 @@
+=================== Explicação de cada script/file ==============================================================
+convert_dataset.py -> passa de .mat para csv
+benchmark_modelos.py-> tabela modelo | latencia | tempo a2 | RAM
+CWRU_48k_load_1_CNN_data.npz -> ignorar, dados pré processados por alguém
+    - No B007, o sensor chama-se X123_DE_time.
+    - No B014, chama-se X190_DE_time.
+    - No IR014_1_175.mat contém chaves estranhas (X175_DE_time misturado com X217_DE_time).
+feature_time_48k_2048_load_1.csv: ignorar, não menciona frequencia
+
+=================== Estrutura dos files raw ==============================================================
+- Time_Normal: O motor está 100% saudável (sem falhas). -> D0
+- B (Ball): Falha nas esferas do rolamento.
+- IR (Inner Race): Falha na pista interna do rolamento.
+- OR (Outer Race): Falha na pista externa do rolamento.
+- Os números que vêm logo a seguir (007, 014, 021) indicam a gravidade do defeito em milésimas de polegada. Portanto, 007 é uma falha minúscula e 021 é uma falha grave (o rolamento está muito mais destruído).
+- O último número (ex: 123, 190, 098) id único do MATLAB para aquele teste.
+
+=================== Seleção de Características ==========================================================================================
+- AccX_Max e o AccX_Min -> ignorar pk gera muitos falsos alarmes
+- AccX_RMS -> métrica padrão, conta msm a história da AccX_Std
+- AccX_Mean 
+- AccX_Skew -> assimetria da vibração (impactos mecânicos direcionais).
+- AccX_Kurt (Kurtosis) -> impactos muito impulsivos em rolamentos.
+- AccX_PeakFreq_Hz -> Obtido via FFT, para distinguir alterações na rotação do motor face a ruído mecânico genérico.
