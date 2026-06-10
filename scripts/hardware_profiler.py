@@ -1,3 +1,9 @@
+"""
+Script Definitivo: Profiling de Hardware na Edge (Raspberry Pi 5)
+Avalia Latência, Retreino Incremental (A2), CPU e RAM.
+Responde aos Pontos 2, 3 e 5 dos Revisores do artigo DriftSense-PM.
+"""
+
 import pandas as pd
 import numpy as np
 import time
@@ -12,8 +18,8 @@ import warnings
 
 warnings.filterwarnings('ignore')
 
-# Features otimizadas para Edge
-FEATURES = ['AccX_Mean', 'AccX_RMS', 'AccX_Skew', 'AccX_PeakFreq_Hz']
+# As 5 features trancadas para evitar a Maldição da Dimensionalidade
+FEATURES = ['AccX_Mean', 'AccX_RMS', 'AccX_Skew', 'AccX_Kurt', 'AccX_PeakFreq_Hz']
 PERCENTAGEM_REPLAY = 0.15
 
 def get_memory_usage():
@@ -23,12 +29,15 @@ def get_memory_usage():
 
 def carregar_dados_reais():
     print("=== A carregar ficheiros reais da pasta 'csvs/' ===")
-    ficheiros_csv = glob.glob('../CWRU/processed/*_features.csv')
+    ficheiros_csv = glob.glob('csvs/*_features.csv')
 
     if not ficheiros_csv:
-        raise ValueError("ERRO: Nenhum ficheiro encontrado na pasta 'csvs/'.")
+        raise ValueError("ERRO: Nenhum ficheiro CSV encontrado na pasta 'csvs/'.")
 
     ficheiro_normal = [f for f in ficheiros_csv if 'Normal' in f]
+    if not ficheiro_normal:
+        raise ValueError("ERRO: Ficheiro Normal não encontrado.")
+        
     df_normal = pd.read_csv(ficheiro_normal[0])
     limite = int(len(df_normal) * 0.8)
 
@@ -51,58 +60,58 @@ def carregar_dados_reais():
     return X_treino, X_teste, X_teste_anomalia
 
 def executar_profiling_edge(X_treino, X_teste, X_teste_anomalia):
-    # Dicionário com os hiperparâmetros ótimos previamente descobertos
+    # Modelos calibrados (OC-SVM com os hiperparâmetros provados empiricamente)
     modelos = {
-        'One-Class SVM': OneClassSVM(kernel='rbf', nu=0.1, gamma=0.1),
-        'Isolation Forest': IsolationForest(contamination=0.1, n_estimators=100, random_state=42),
-        'Local Outlier Factor': LocalOutlierFactor(contamination=0.1, n_neighbors=10, novelty=True)
+        'One-Class SVM': OneClassSVM(kernel='rbf', nu=0.03, gamma=0.001),
+        'Isolation Forest': IsolationForest(contamination=0.03, n_estimators=100, random_state=42),
+        'Local Outlier Factor': LocalOutlierFactor(contamination=0.03, n_neighbors=20, novelty=True)
     }
 
-    # Preparar Replay Buffer para o teste de retreino
+    # Preparar Replay Buffer para o teste de Retreino Incremental (A2 Híbrido)
     tamanho_replay = int(len(X_treino) * PERCENTAGEM_REPLAY)
     np.random.seed(42)
     indices_replay = np.random.choice(len(X_treino), size=tamanho_replay, replace=False)
     X_hibrido = np.vstack((X_treino[indices_replay], X_teste_anomalia[:200]))
 
-    resultados = []
-
-    print(f"{'Modelo':<22} | {'Latência Inferência':<20} | {'Tempo Re-treino (A2)':<20} | {'Pegada RAM (MB)':<15}")
-    print("-" * 85)
+    print(f"{'Modelo':<22} | {'Lat. Inferência':<17} | {'Retreino (A2)':<15} | {'CPU (Pico)':<12} | {'RAM Alocada'}")
+    print("-" * 95)
 
     for nome, modelo in modelos.items():
-        # 1. Medir Pegada de Memória e Treino Base
-        mem_antes = get_memory_usage()
+        # Treino Base Inicial
         modelo.fit(X_treino)
-        mem_depois = get_memory_usage()
-        ram_consumida = max(0, mem_depois - mem_antes)
 
-        # 2. Medir Latência de Inferência Rigorosa (em batch para simular carga, depois dividida)
+        # Medir Latência de Inferência Rigorosa
         t0_inf = time.perf_counter()
         modelo.predict(X_teste)
         t1_inf = time.perf_counter()
-        # Tempo por janela em milissegundos
         latencia_ms = ((t1_inf - t0_inf) / len(X_teste)) * 1000
 
-        # 3. Medir Tempo de Re-treino com Replay Buffer na Edge
+        # Simular e medir o Retreino Incremental na Edge
         if nome == 'Local Outlier Factor':
-            # LOF precisa de ser instanciado de novo com novelty=True para novos fits
-            modelo_retreino = LocalOutlierFactor(contamination=0.1, n_neighbors=10, novelty=True)
+            modelo_retreino = LocalOutlierFactor(contamination=0.03, n_neighbors=20, novelty=True)
         else:
             modelo_retreino = modelo
 
+        mem_antes = get_memory_usage()
+        psutil.cpu_percent(interval=None) 
+        
         t0_ret = time.perf_counter()
         modelo_retreino.fit(X_hibrido)
         t1_ret = time.perf_counter()
+        
+        cpu_pico = psutil.cpu_percent(interval=None)
+        mem_depois = get_memory_usage()
+        
         tempo_retreino_ms = (t1_ret - t0_ret) * 1000
+        ram_consumida = max(0.0, mem_depois - mem_antes)
 
-        print(f"{nome:<22} | {latencia_ms:>17.4f} ms | {tempo_retreino_ms:>17.2f} ms | {ram_consumida:>10.2f} MB")
+        print(f"{nome:<22} | {latencia_ms:>14.4f} ms | {tempo_retreino_ms:>12.2f} ms | {cpu_pico:>8.1f} % | {ram_consumida:>8.2f} MB")
 
-def main():
+    print("-" * 95)
+
+if __name__ == "__main__":
     try:
         X_treino, X_teste, X_teste_anomalia = carregar_dados_reais()
         executar_profiling_edge(X_treino, X_teste, X_teste_anomalia)
     except Exception as e:
-        print(str(e))
-
-if __name__ == "__main__":
-    main()
+        print(f"Erro Crítico: {str(e)}")

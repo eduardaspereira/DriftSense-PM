@@ -1,0 +1,269 @@
+
+================================================================================
+CURRENT DATA QUALITY ASSESSMENT
+================================================================================
+
+Per-File Statistics:
+                         File  Samples  Features  Memory_MB  Missing_Values  Duplicates
+0     B007_1_123_features.csv     9744         5   0.545796               0           0
+1     B014_1_190_features.csv     9721         5   0.544508               0           0
+2     B021_1_227_features.csv     9733         5   0.545180               0           0
+3    IR007_1_110_features.csv     9721         5   0.544508               0           0
+4    IR014_1_175_features.csv     9779         5   0.547756               0           0
+5    IR021_1_214_features.csv     9698         5   0.543220               0           0
+6  OR007_6_1_136_features.csv     9733         5   0.545180               0           0
+7  OR014_6_1_202_features.csv     9686         5   0.542548               0           0
+8  OR021_6_1_239_features.csv     9779         5   0.547756               0           0
+
+
+Total unique features: 5
+Feature columns: ['AccX_Kurt', 'AccX_Mean', 'AccX_PeakFreq_Hz', 'AccX_RMS', 'AccX_Skew']
+
+⚠ Missing critical features: ['AccY_Skew', 'AccY_Kurt', 'AccY_PeakFreq_Hz', 'AccZ_Skew', 'AccZ_Kurt', 'AccZ_PeakFreq_Hz']
+
+
+DATA QUALITY CHECKS:
+├─ Total samples: 87594
+├─ Files with missing values: 0
+├─ Files with duplicates: 0
+├─ Total dataset size: 4.91 MB
+└─ Feature consistency: ✓ PASS
+================================================================================
+DATA FORMAT RECOMMENDATIONS
+================================================================================
+
+YOUR CURRENT SETUP: CSV files in CWRU/processed/
+VERDICT: ✓ ACCEPTABLE, but with caveats
+
+COMPARISON TABLE:
+╔════════════════════╦═════════╦═════════╦═════════════╦═════════════════╗
+║ Format             ║ Speed   ║ Size    ║ Reusability ║ Reproducibility ║
+╠════════════════════╬═════════╬═════════╬═════════════╬═════════════════╣
+║ CSV (current)      ║  Slow   ║ Large   ║  High       ║  Very High      ║
+║ HDF5 (recommend)   ║  Fast   ║ Small   ║  High       ║  High           ║
+║ Parquet (alt.)     ║  Medium ║ Small   ║  High       ║  High           ║
+║ NumPy (.npy)       ║  Very   ║ Small   ║  Low        ║  Medium         ║
+║                    ║  Fast   ║         ║             ║                 ║
+║ .mat (keep source) ║  Fast   ║ Large   ║  Low        ║  Very High      ║
+╚════════════════════╩═════════╩═════════╩═════════════╩═════════════════╝
+
+RECOMMENDATION FOR SCIENTIFIC ARTICLE:
+
+1. **PRIMARY FORMAT: HDF5** (Hierarchical Data Format 5)
+   ├─ Why: Industry standard for scientific computing
+   ├─ Pro: Metadata support, partial I/O, compression, versioning
+   ├─ Con: Requires h5py library (minimal dependency)
+   ├─ Usage: Main analysis, faster training/inference
+   ├─ Python: import h5py; file = h5py.File('data.h5', 'r')
+   └─ Example structure:
+       └─ cwru_processed.h5
+           ├─ B007_1_123 (group)
+           │  ├─ features (dataset: Nx32 float32)
+           │  ├─ raw_signal (dataset: metadata)
+           │  └─ metadata (attributes: source, date, params)
+           ├─ B014_1_190 (group)
+           └─ metadata (attributes: schema_version, creation_date)
+
+2. **SECONDARY FORMAT: CSV** (current - keep for transparency)
+   ├─ Why: Human-readable, supports supplementary materials
+   ├─ Pro: Reviewers can verify, Excel-friendly
+   ├─ Con: Large files, slow I/O
+   └─ Usage: Supplementary data in journal submission
+
+3. **RETAIN RAW: .mat files** (preserve original)
+   ├─ Why: Complete traceability, reanalysis capability
+   ├─ Pro: Original vendor format (reproducibility)
+   ├─ Con: Proprietary, harder to share
+   └─ Usage: Archive in GitHub/Zenodo for reproducibility
+
+MISSING CRITICAL INFORMATION:
+Your current CSV files lack:
+  ⚠ Bearing load information (1000 lbf, 1500 lbf, 2000 lbf, 3000 lbf)
+  ⚠ Bearing type (6205-2RS, 6203-2RS, 6204-2RS)
+  ⚠ Fault size/category (7mil, 14mil, 21mil, normal)
+  ⚠ Operating RPM (1772, 1750, 1650, 1500 RPM)
+  ⚠ Data collection date/batch
+  ⚠ Sampling parameters (sample rate, filter settings)
+
+ACTION ITEMS FOR SCIENTIFIC RIGOR:
+
+✓ Extract metadata from filename: {Type}{Size}_{Load}_{RPM}_features.csv
+✓ Create metadata CSV with: [filename, fault_type, fault_size, load, rpm, samples]
+✓ Add to each processed file as integer columns or header
+✓ Store in HDF5 as attributes for each bearing fault
+
+EXAMPLE METADATA EXTRACTION:
+  B007_1_123_features.csv
+  ├─ Type: Ball bearing (B)
+  ├─ Fault size: 7 mil (007)
+  ├─ Load: 1 (≈1000 lbf)
+  ├─ RPM: 123 (placeholder - check reference)
+  └─ Should be: B(all)_007_1_xxx
+
+STANDARDIZED FILENAME PATTERN:
+  {BearingType}_{FaultSize}_{LoadCategory}_{OperatingRPM}_load{number}_features.csv
+  Example: B_007_1000lbf_1772rpm_features.csv
+
+================================================================================
+RECOMMENDED ADVANCED FEATURES FOR PUBLICATION
+================================================================================
+
+Your current features are GOOD but can be enhanced:
+
+CURRENT FEATURES (Good):
+├─ Temporal Statistics: Mean, Std, Min, Max, RMS
+├─ Statistical Moments: Skewness, Kurtosis
+└─ Frequency Domain: Peak Frequency
+
+RECOMMENDED ADDITIONS:
+
+1. **SPECTRAL FEATURES** (High discriminative power)
+   ├─ Spectral Entropy (Shannon entropy of power spectral density)
+   ├─ Spectral Energy (sum of squared FFT components)
+   ├─ Spectral Centroid (center of mass in frequency domain)
+   ├─ Spectral Flux (change in power spectrum over time)
+   ├─ Welch PSD peaks (dominant frequency components)
+   ├─ Spectral Kurtosis (detects impulsive events - KEY for bearing faults)
+   └─ Crest Factor (max/RMS ratio - sensitive to impacts)
+
+2. **WAVELET FEATURES** (Captures transient fault signatures)
+   ├─ Continuous Wavelet Transform energy at specific frequencies
+   ├─ Wavelet packet energy decomposition (8-16 bands)
+   ├─ Intrinsic Mode Function (IMF) energies via EMD
+   ├─ Maximum Lyapunov exponent (nonlinear dynamics)
+   └─ Sample Entropy (complexity measure)
+
+3. **TIME-DOMAIN DERIVED** (Fault-specific indicators)
+   ├─ Impulse Factor = Max / Mean (sensitive to bearing defects)
+   ├─ Margin Factor = Max / √(Mean(|x|²))
+   ├─ Clearance Factor = Max / (Mean(√|x|))⁴
+   ├─ Kurtosis value itself (very important - ignored in current pipeline)
+   ├─ 4th Central Moment (enhanced kurtosis detection)
+   ├─ Autocorrelation at lag-1 (periodicity detection)
+   ├─ Zero-crossing rate (impacts detection)
+   └─ Time between peaks (impulse interval)
+
+4. **FREQUENCY DOMAIN** (Beyond simple peak detection)
+   ├─ FFT magnitude at fault-characteristic frequencies (FCF)
+   ├─ Bearing fundamental frequency (BFF)
+   ├─ Ball pass frequency outer race (BPFO)
+   ├─ Ball pass frequency inner race (BPFI)
+   ├─ Multiple harmonics of FCF (2×, 3×, 4× FCF)
+   ├─ Energy in bands around fault frequencies
+   ├─ Coherence between axes (X-Y, Y-Z, X-Z)
+   └─ Cross-spectrum phase alignment
+
+5. **TEMPORAL-FREQUENCY (Time-Frequency analysis)**
+   ├─ Spectrogram features (energy distribution across time-freq)
+   ├─ Morlet wavelet scalogram energy
+   ├─ Short-Time Fourier Transform (STFT) statistics
+   ├─ Mel-frequency cepstral coefficients (MFCCs)
+   └─ Constant-Q transform (log-frequency resolution)
+
+6. **STATISTICAL MOMENTS (Advanced)**
+   ├─ 5th & 6th Central Moments (hyperskewness, hyperkurtosis)
+   ├─ Shape factors (α, β from Weibull distribution)
+   ├─ Peak-to-Peak ratio
+   ├─ Variance of first differences (acceleration smoothness)
+   └─ Distribution tail properties (percentiles 90, 95, 99)
+
+7. **MULTIVARIATE CORRELATION**
+   ├─ Cross-correlation between axes at peak lags
+   ├─ Principal Component Analysis (PCA) variance ratios
+   ├─ Singular Value Decomposition (SVD) spectral norms
+   └─ Mahalanobis distance from normal operating point
+
+CRITICAL FOR YOUR PAPER:
+→ **Spectral Kurtosis** (most important for rolling element bearing faults)
+→ **Impulse/Margin/Clearance Factors** (industry standard indicators)
+→ **FCF-related harmonics** (bearing-specific physics)
+→ **Wavelet entropy** (captures fault transients)
+
+
+================================================================================
+IMPLEMENTATION TEMPLATE
+================================================================================
+# ============================================================================
+# ADVANCED FEATURE ENGINEERING TEMPLATE (Add to feature_engineering.py)
+# ============================================================================
+
+def compute_advanced_features(signal, fs=2.0, window_name='hann'):
+    """
+    Compute advanced features for bearing fault detection.
+    
+    Parameters:
+        signal: 1D vibration signal (numpy array)
+        fs: Sampling frequency (Hz)
+        window_name: FFT window type
+        
+    Returns:
+        dict: Feature name -> value pairs
+    """
+    from scipy.signal import welch, morlet2
+    from scipy.stats import entropy as scipy_entropy
+    
+    features = {}
+    
+    # 1. SPECTRAL ENTROPY (Shannon entropy of normalized PSD)
+    f, Pxx = welch(signal, fs, nperseg=min(256, len(signal)))
+    psd_norm = Pxx / np.sum(Pxx)
+    features['spectral_entropy'] = scipy_entropy(psd_norm[psd_norm > 0])
+    
+    # 2. SPECTRAL ENERGY
+    features['spectral_energy'] = np.sum(Pxx)
+    
+    # 3. SPECTRAL CENTROID
+    features['spectral_centroid'] = np.sum(f * psd_norm) / np.sum(psd_norm)
+    
+    # 4. CREST FACTOR (impulse indicator)
+    features['crest_factor'] = np.max(np.abs(signal)) / np.sqrt(np.mean(signal**2))
+    
+    # 5. IMPULSE FACTOR
+    features['impulse_factor'] = np.max(np.abs(signal)) / np.mean(np.abs(signal))
+    
+    # 6. MARGIN FACTOR
+    features['margin_factor'] = np.max(np.abs(signal)) / np.sqrt(np.mean(signal**2))
+    
+    # 7. CLEARANCE FACTOR
+    abs_mean_sqrt = np.mean(np.sqrt(np.abs(signal)))
+    features['clearance_factor'] = np.max(np.abs(signal)) / (abs_mean_sqrt**2)
+    
+    # 8. SPECTRAL KURTOSIS (HIGH IMPORTANCE for bearing faults)
+    # Simplified version - full SK requires STFT analysis
+    fft_vals = np.fft.fft(signal)
+    spectrum = np.abs(fft_vals)**2
+    spectrum_norm = spectrum / np.sum(spectrum)
+    if np.sum(spectrum_norm) > 0:
+        m2 = np.sum(spectrum_norm * (np.arange(len(spectrum))**2))
+        m4 = np.sum(spectrum_norm * (np.arange(len(spectrum))**4))
+        features['spectral_kurtosis'] = m4 / (m2**2) if m2 > 0 else 0
+    
+    # 9. AUTOCORRELATION AT LAG-1 (periodicity)
+    if len(signal) > 1:
+        acf = np.correlate(signal - np.mean(signal), signal - np.mean(signal), mode='full')
+        acf = acf / acf[len(acf)//2]
+        features['autocorr_lag1'] = acf[len(acf)//2 + 1]
+    
+    # 10. ZERO CROSSING RATE (impact detection)
+    sign_changes = np.sum(np.diff(np.sign(signal)) != 0)
+    features['zero_crossing_rate'] = sign_changes / len(signal)
+    
+    # 11. VARIANCE OF FIRST DIFFERENCES (smoothness)
+    if len(signal) > 1:
+        first_diff = np.diff(signal)
+        features['variance_first_diff'] = np.var(first_diff)
+    
+    # 12. PEAK-TO-PEAK RATIO
+    features['peak_to_peak'] = np.max(signal) - np.min(signal)
+    
+    # 13. PERCENTILE-BASED FEATURES (tail properties)
+    features['percentile_90'] = np.percentile(np.abs(signal), 90)
+    features['percentile_95'] = np.percentile(np.abs(signal), 95)
+    features['percentile_99'] = np.percentile(np.abs(signal), 99)
+    
+    return features
+
+# Integration with current pipeline:
+# In main feature extraction loop, after computing temporal features:
+#   adv_features = compute_advanced_features(janela[eixo].astype(float).values, TAXA_AMOSTRAGEM)
+#   resumo.update({f'{eixo}_{k}': v for k, v in adv_features.items()})

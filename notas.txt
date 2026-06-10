@@ -1,6 +1,12 @@
 =================== Explicação de cada script/file ==============================================================
 convert_dataset.py -> passa de .mat para csv
-benchmark_modelos.py-> tabela modelo | latencia | tempo a2 | RAM
+selecao_modelos.py-> escolha do melhor modelo (svm)
+otimizacao_ocsvm.py-> pesquisa melhores hiperparametros
+            ocsvm = OneClassSVM(kernel='rbf', nu=0.03, gamma=0.001)
+
+benchmark_detetores.py ->extrai atraso detecao e taxa de falsos alarmes, usando KS e o ADWIN
+hardware_profiler.py -> tabela de comparação modelos + CPU/RAM 
+
 CWRU_48k_load_1_CNN_data.npz -> ignorar, dados pré processados por alguém
     - No B007, o sensor chama-se X123_DE_time.
     - No B014, chama-se X190_DE_time.
