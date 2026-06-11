@@ -1,0 +1,64 @@
+# ==========================================
+# DriftSense-PM: Configuration File (Unified & Conference-Ready)
+# ==========================================
+
+system:
+  serial_port: '/dev/ttyACM0'
+  baud_rate: 115200
+  sampling_rate_hz: 48000
+  dataset_version: "v1.0"     # Frequência nativa do CWRU (48k)
+
+experiment:
+  project_name: "DriftSense-PM"
+  scenario_id: "CWRU_Full_Factorial"           
+  repetitions: 30            # Repetições padrão para a matriz fatorial
+  n_executions: 30            # Rigor estatístico extra exigido para o perfil de hardware e IC95%
+  random_seed: 42             # Seed global para garantir determinismo 
+  device: "Raspberry Pi 5"
+
+feature_engineering:
+  window_size: 200             # Tamanho da janela ideal para CWRU
+  step_size: 50               # Passo para manter o overlap de 75%
+  features: ['AccX_Mean', 'AccX_RMS', 'AccX_Skew', 'AccX_Kurt', 'AccX_PeakFreq_Hz'] # Quinteto trancado
+
+models:
+  oc_svm:                     # Hiperparâmetros ótimos validados empiricamente para o artigo 
+    nu: 0.03
+    gamma: 0.001
+    kernel: 'rbf'
+  isolation_forest:
+    contamination: 0.03
+    n_estimators: 100
+  local_outlier_factor:
+    contamination: 0.03
+    n_neighbors: 20
+    novelty: true
+
+detectors:
+  det1_error_monitoring:
+    f1_threshold: 0.85
+    persistence: 10          # Número de janelas sustentadas [cite: 1006]
+  det2_distribution_test:
+    alpha_ks: 0.001          # Reduzido para 0.001 para mitigar os 15 falsos alarmes no ambiente ruidoso [cite: 1008]
+    window_size_ks: 50       # Janela deslizante para o teste estatístico
+
+adaptation:
+  percentage_replay: 0.15     # 15% de Replay Buffer para ancorar a fronteira geométrica e travar o Forgetting 
+  a1_periodic_retrain:
+    retrain_interval: 50     # Retreina a cada 50 janelas independentemente do erro
+  a2_lightweight:
+    fine_tune_trees: 10      
+    buffer_size: 20          # Tamanho da memória recente usada para adaptar por fine-tuning
+
+gate:
+  limite_distancia: 22.0      # Validation Gate: Limiar de corte euclidiano contra data poisoning do sensor
+
+metrics:
+  recovery_threshold: 0.85
+
+paths:                        # Estrutura de diretórios idêntica ao layout exigido pela norma ACM [cite: 1577]
+  raw_data_dir: "../data/CWRU_dataset/raw/"
+  processed_dir: "../data/CWRU_dataset/processed/"
+  models_dir: "../models/CWRU_dataset/"
+  results_dir: "../results/CWRU_dataset/metrics/"
+  figures_dir: "../results/CWRU_dataset/figures/"

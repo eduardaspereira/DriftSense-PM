@@ -221,10 +221,10 @@ def check_config():
     print("⚙️  VERIFICAÇÃO DE CONFIGURAÇÃO")
     print("="*80 + "\n")
     
-    if os.path.exists("configs/config.yaml"):
+    if os.path.exists("configs/driftsense_dataset/config.yaml"):
         try:
             import yaml
-            with open("configs/config.yaml", 'r') as f:
+            with open("configs/driftsense_dataset/config.yaml", 'r') as f:
                 config = yaml.safe_load(f)
             
             print("✅ config.yaml carregado com sucesso")
@@ -236,7 +236,7 @@ def check_config():
         except Exception as e:
             print(f"⚠️  Erro ao ler config: {str(e)}")
     else:
-        print("❌ configs/config.yaml NÃO ENCONTRADO")
+        print("❌ configs/driftsense_dataset/config.yaml NÃO ENCONTRADO")
 
 def check_git():
     """Verifica git e versionamento"""

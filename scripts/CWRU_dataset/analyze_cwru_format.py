@@ -33,7 +33,7 @@ def morlet2(M, s, w=5.0):
 def analyze_mat_files():
     """Inspect a sample .mat file to understand data structure."""
     
-    mat_dir = os.path.join(PROJECT_ROOT, "CWRU", "raw", "raw")
+    mat_dir = os.path.join(PROJECT_ROOT, "data", "CWRU_dataset", "raw", "raw")
     mat_files = [f for f in os.listdir(mat_dir) if f.endswith('.mat')][:3]  # First 3 files
     
     print("\n" + "="*80)
@@ -253,7 +253,7 @@ STANDARDIZED FILENAME PATTERN:
 def assess_data_quality():
     """Assess current data quality and identify gaps."""
     
-    processed_dir = os.path.join(PROJECT_ROOT, "CWRU", "processed")
+    processed_dir = os.path.join(PROJECT_ROOT, "data", "CWRU_dataset", "processed")
     csv_files = [f for f in os.listdir(processed_dir) if f.endswith('_features.csv')]
     
     report = []

@@ -44,7 +44,7 @@ parser.add_argument("--lof-contamination", type=float, default=1.0)
 args = parser.parse_args()
 
 # 1. CONFIGURAÇÕES E PASTAS (Selo de Reprodutibilidade ACM)
-CONFIG_PATH = resolve_project_path("../configs/config.yaml")
+CONFIG_PATH = resolve_project_path("../configs/driftsense_dataset/config.yaml")
 with open(CONFIG_PATH, 'r') as f:
     config = yaml.safe_load(f)
 

@@ -31,7 +31,7 @@ args = parser.parse_args()
 
 # --- 1. CARREGAR CONFIGURAÇÕES ---
 try:
-    with open('../configs/config.yaml', 'r') as file:
+    with open('../configs/driftsense_dataset/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
 except FileNotFoundError:
     print("Erro: Ficheiro config.yaml não encontrado.")

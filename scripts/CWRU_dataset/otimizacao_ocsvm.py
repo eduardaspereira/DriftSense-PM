@@ -16,9 +16,9 @@ warnings.filterwarnings('ignore')
 FEATURES = ['AccX_Mean', 'AccX_RMS', 'AccX_Skew', 'AccX_Kurt', 'AccX_PeakFreq_Hz']
 
 def carregar_e_separar_dados():
-    ficheiros_csv = glob.glob('csvs/*_features.csv')
+    ficheiros_csv = glob.glob('data/CWRU_dataset/processed/*_features.csv')
     if not ficheiros_csv:
-        raise ValueError("ERRO: Nenhum ficheiro CSV encontrado na pasta 'csvs/'.")
+        raise ValueError("ERRO: Nenhum ficheiro CSV encontrado na pasta 'data/CWRU_dataset/processed/'.")
 
     ficheiro_normal = [f for f in ficheiros_csv if 'Normal' in f]
     df_normal = pd.read_csv(ficheiro_normal[0])

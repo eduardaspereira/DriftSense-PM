@@ -7,6 +7,7 @@ Avalia: F1-Score, FAR (%), Latência de Inferência, Tempo de Retreino (A2), CPU
 import pandas as pd
 import numpy as np
 import time
+import json
 import glob
 import os
 import psutil
@@ -30,7 +31,8 @@ def get_memory_usage():
 
 def carregar_dados_nao_supervisionados():
     print("=== A carregar e a dividir datasets (Treino = Apenas Normal) ===")
-    ficheiros_csv = glob.glob('csvs/*_features.csv')
+    caminho_dados = "/home/user/projeto/DriftSense-PM/data/CWRU_dataset/processed/"
+    ficheiros_csv = glob.glob(os.path.join(caminho_dados, '*_features.csv'))
 
     if not ficheiros_csv:
         raise ValueError("ERRO: Nenhum ficheiro CSV encontrado na pasta 'csvs/'.")
@@ -73,14 +75,12 @@ def carregar_dados_nao_supervisionados():
     return X_treino, X_teste, y_teste, X_teste_anomalia
 
 def executar_benchmark_global(X_treino, X_teste, y_teste, X_teste_anomalia):
-    # Modelos otimizados das 3 grandes famílias de deteção não supervisionada
     modelos = {
         'One-Class SVM': OneClassSVM(kernel='rbf', nu=0.05, gamma=0.01),
         'Isolation Forest': IsolationForest(contamination=0.05, n_estimators=100, random_state=42),
         'Local Outlier Factor': LocalOutlierFactor(contamination=0.05, n_neighbors=20, novelty=True)
     }
 
-    # Preparar dados para simular o Retreino Incremental (A2 Híbrido com Replay Buffer)
     tamanho_replay = int(len(X_treino) * PERCENTAGEM_REPLAY)
     np.random.seed(42)
     indices_replay = np.random.choice(len(X_treino), size=tamanho_replay, replace=False)
@@ -89,34 +89,29 @@ def executar_benchmark_global(X_treino, X_teste, y_teste, X_teste_anomalia):
     print(f"{'Modelo':<20} | {'F1-Score':<8} | {'FAR (%)':<7} | {'Lat. Inf.':<12} | {'Retreino(A2)':<12} | {'CPU %':<6} | {'RAM MB'}")
     print("-" * 105)
 
+    dados_pareto = [] # Estrutura para a Frente de Pareto
+
     for nome, modelo in modelos.items():
-        # --- 1. Treino Inicial (Apenas no Normal) ---
         modelo.fit(X_treino)
 
-        # --- 2. Teste e Inferência (Precisão e FAR) ---
         t0_inf = time.perf_counter()
         y_pred = modelo.predict(X_teste)
         t1_inf = time.perf_counter()
         
         latencia_ms = ((t1_inf - t0_inf) / len(X_teste)) * 1000
-        
-        # O F1-Score Macro mede o equilíbrio entre acertar no normal e na falha
         f1 = f1_score(y_teste, y_pred, average='macro')
         
-        # Calcular Taxa de Falsos Alarmes (Falsos Positivos)
         cm = confusion_matrix(y_teste, y_pred, labels=[1, -1])
-        fp = cm[0][1]
-        tn = cm[0][0]
+        fp, tn = cm[0][1], cm[0][0]
         far = (fp / (fp + tn)) * 100 if (fp + tn) > 0 else 0.0
 
-        # --- 3. Profiling de Hardware na Adaptação (Estratégia A2) ---
         if nome == 'Local Outlier Factor':
             modelo_retreino = LocalOutlierFactor(contamination=0.05, n_neighbors=20, novelty=True)
         else:
             modelo_retreino = modelo
 
         mem_antes = get_memory_usage()
-        psutil.cpu_percent(interval=None) # Reset do monitor de CPU
+        psutil.cpu_percent(interval=None) 
         
         t0_ret = time.perf_counter()
         modelo_retreino.fit(X_retreino)
@@ -130,7 +125,21 @@ def executar_benchmark_global(X_treino, X_teste, y_teste, X_teste_anomalia):
 
         print(f"{nome:<20} | {f1:<8.4f} | {far:<7.2f} | {latencia_ms:>7.4f} ms | {tempo_retreino_ms:>7.2f} ms | {cpu_pico:>5.1f} | {ram_consumida:>6.2f}")
 
+        # Registar dados para o JSON de Pareto
+        dados_pareto.append({
+            "modelo": nome,
+            "f1_score": round(f1, 4),
+            "latencia_inferencia_ms": round(latencia_ms, 4),
+            "far_percentagem": round(far, 2),
+            "tempo_retreino_ms": round(tempo_retreino_ms, 2)
+        })
+
     print("-" * 105)
+    
+    # Exportação para o colega
+    with open("frente_pareto.json", "w") as f:
+        json.dump(dados_pareto, f, indent=4)
+    print("\n[!] Resultados exportados para 'frente_pareto.json' com sucesso.")
 
 def main():
     try:

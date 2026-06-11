@@ -20,7 +20,7 @@ from colorama import Fore, Style, init
 init(autoreset=True)    
 
 # --- CARREGAR CONFIGURAÇÃO ---
-CONFIG_PATH = "../configs/config.yaml"
+CONFIG_PATH = "../configs/driftsense_dataset/config.yaml"
 if os.path.exists(CONFIG_PATH):
     with open(CONFIG_PATH, 'r') as f:
         config = yaml.safe_load(f)
@@ -29,7 +29,7 @@ else:
     config = {
         'experiment': {'scenario_id': 'RAW_DATA'},
         'system': {'dataset_version': 'v1.0', 'serial_port': '/dev/ttyACM0', 'baud_rate': 115200},
-        'paths': {'raw_data_dir': '../data/raw'}
+        'paths': {'raw_data_dir': '../data/driftsense_dataset/raw'}
     }
 
 SCENARIO = config['experiment']['scenario_id']

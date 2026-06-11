@@ -18,8 +18,11 @@ PASSO = 50
 TAXA_AMOSTRAGEM = 48000  # Padrão do CWRU 48k
 
 # Definição das pastas
-PASTA_ENTRADA = os.path.join("CWRU", "raw")
-PASTA_SAIDA = os.path.join("CWRU", "processed")
+DIRETORIO_SCRIPT = os.path.dirname(os.path.abspath(__file__))
+RAIZ_PROJETO = os.path.abspath(os.path.join(DIRETORIO_SCRIPT, ".."))
+
+PASTA_ENTRADA = os.path.join(RAIZ_PROJETO, "data", "CWRU_dataset", "raw", "raw")
+PASTA_SAIDA = os.path.join(RAIZ_PROJETO, "data", "CWRU_dataset", "processed")
 
 # Criar a pasta de destino automaticamente se não existir
 if not os.path.exists(PASTA_SAIDA):

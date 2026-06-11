@@ -82,8 +82,8 @@ python3 generate_thesis_plots.py
 
 Saídas esperadas
 ----------------
-- `models/baseline_model.pkl`
-- `models/scaler.pkl`
-- `results/metrics/`
-- `results/figures/`
-- `data/processed/`
+- `models/driftsense_dataset/baseline_model.pkl`
+- `models/driftsense_dataset/scaler.pkl`
+- `results/driftsense_dataset/metrics/`
+- `results/driftsense_dataset/figures/`
+- `data/driftsense_dataset/processed/`

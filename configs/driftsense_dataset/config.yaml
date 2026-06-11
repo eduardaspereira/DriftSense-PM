@@ -35,8 +35,8 @@ metrics:
   recovery_threshold: 0.85
 
 paths:
-  raw_data_dir: "../data/raw/"
-  processed_dir: "../data/processed/"
-  models_dir: "../models/"
-  results_dir: "../results/metrics/"
-  figures_dir: "../results/figures/"
+  raw_data_dir: "../data/driftsense_dataset/raw/"
+  processed_dir: "../data/driftsense_dataset/processed/"
+  models_dir: "../models/driftsense_dataset/"
+  results_dir: "../results/driftsense_dataset/metrics/"
+  figures_dir: "../results/driftsense_dataset/figures/"

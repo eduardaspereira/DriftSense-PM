@@ -14,12 +14,12 @@ Pré-condições
 -------------
 - Ambiente Python já activo.
 - Dependências instaladas.
-- `configs/config.yaml` ajustado aos caminhos locais.
+- `configs/driftsense_dataset/config.yaml` ajustado aos caminhos locais.
 - Dados raw disponíveis nas localizações configuradas.
 
 Comandos exactos
 ---------------
-Executar a partir da pasta `scripts/`:
+Executar a partir da pasta `scripts/driftsense_dataset/`:
 
 ```bash
 cd scripts
@@ -40,7 +40,7 @@ Ordem recomendada
 
 Saídas principais
 -----------------
-- Modelos em `models/`.
-- Métricas em `results/metrics/`.
-- Figuras em `results/figures/`.
-- Ficheiros processados em `data/processed/`.
+- Modelos em `models/driftsense_dataset/`.
+- Métricas em `results/driftsense_dataset/metrics/`.
+- Figuras em `results/driftsense_dataset/figures/`.
+- Ficheiros processados em `data/driftsense_dataset/processed/`.

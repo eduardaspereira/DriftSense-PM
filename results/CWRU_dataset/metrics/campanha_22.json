@@ -1,0 +1,101 @@
+[
+    {
+        "cenario": "IR_007_Ligeiro",
+        "falsos_alarmes": 0,
+        "far_percentagem": 0.0,
+        "atraso_janelas": 0,
+        "gate_bloqueio_catastrofico": false,
+        "latencia_inf_media_ms": 0.03553,
+        "latencia_inf_ic95_ms": 8e-05,
+        "retreino_a2_medio_ms": 1.44,
+        "retreino_a2_ic95_ms": 0.01
+    },
+    {
+        "cenario": "IR_014_Medio",
+        "falsos_alarmes": 0,
+        "far_percentagem": 0.0,
+        "atraso_janelas": 0,
+        "gate_bloqueio_catastrofico": true,
+        "latencia_inf_media_ms": 0.03519,
+        "latencia_inf_ic95_ms": 8e-05,
+        "retreino_a2_medio_ms": 1.48,
+        "retreino_a2_ic95_ms": 0.01
+    },
+    {
+        "cenario": "IR_021_Catastrofico",
+        "falsos_alarmes": 0,
+        "far_percentagem": 0.0,
+        "atraso_janelas": 0,
+        "gate_bloqueio_catastrofico": true,
+        "latencia_inf_media_ms": 0.03527,
+        "latencia_inf_ic95_ms": 5e-05,
+        "retreino_a2_medio_ms": 1.74,
+        "retreino_a2_ic95_ms": 0.02
+    },
+    {
+        "cenario": "OR_007_Ligeiro",
+        "falsos_alarmes": 0,
+        "far_percentagem": 0.0,
+        "atraso_janelas": 0,
+        "gate_bloqueio_catastrofico": true,
+        "latencia_inf_media_ms": 0.03523,
+        "latencia_inf_ic95_ms": 5e-05,
+        "retreino_a2_medio_ms": 2.13,
+        "retreino_a2_ic95_ms": 0.02
+    },
+    {
+        "cenario": "OR_014_Medio",
+        "falsos_alarmes": 0,
+        "far_percentagem": 0.0,
+        "atraso_janelas": 2,
+        "gate_bloqueio_catastrofico": false,
+        "latencia_inf_media_ms": 0.03526,
+        "latencia_inf_ic95_ms": 5e-05,
+        "retreino_a2_medio_ms": 1.45,
+        "retreino_a2_ic95_ms": 0.01
+    },
+    {
+        "cenario": "OR_021_Catastrofico",
+        "falsos_alarmes": 0,
+        "far_percentagem": 0.0,
+        "atraso_janelas": 10,
+        "gate_bloqueio_catastrofico": false,
+        "latencia_inf_media_ms": 0.03486,
+        "latencia_inf_ic95_ms": 4e-05,
+        "retreino_a2_medio_ms": 1.79,
+        "retreino_a2_ic95_ms": 0.01
+    },
+    {
+        "cenario": "B_007_Ligeiro",
+        "falsos_alarmes": 0,
+        "far_percentagem": 0.0,
+        "atraso_janelas": 0,
+        "gate_bloqueio_catastrofico": false,
+        "latencia_inf_media_ms": 0.03491,
+        "latencia_inf_ic95_ms": 5e-05,
+        "retreino_a2_medio_ms": 1.46,
+        "retreino_a2_ic95_ms": 0.01
+    },
+    {
+        "cenario": "B_014_Medio",
+        "falsos_alarmes": 0,
+        "far_percentagem": 0.0,
+        "atraso_janelas": 0,
+        "gate_bloqueio_catastrofico": false,
+        "latencia_inf_media_ms": 0.03518,
+        "latencia_inf_ic95_ms": 7e-05,
+        "retreino_a2_medio_ms": 1.48,
+        "retreino_a2_ic95_ms": 0.01
+    },
+    {
+        "cenario": "B_021_Catastrofico",
+        "falsos_alarmes": 0,
+        "far_percentagem": 0.0,
+        "atraso_janelas": 9,
+        "gate_bloqueio_catastrofico": false,
+        "latencia_inf_media_ms": 0.03493,
+        "latencia_inf_ic95_ms": 7e-05,
+        "retreino_a2_medio_ms": 1.46,
+        "retreino_a2_ic95_ms": 0.01
+    }
+]
