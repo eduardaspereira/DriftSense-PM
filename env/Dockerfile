@@ -1,24 +1,26 @@
+# Usar uma imagem base oficial de Python leve
 FROM python:3.11-slim
 
+# Definir metadados de reprodutibilidade para o artigo
 LABEL maintainer="Eduarda Pereira, Gonçalo Ferreira, Gonçalo Magalhães"
-LABEL description="DriftSense-PM: Drift-Aware Predictive Maintenance Benchmark"
+LABEL project="DriftSense-PM"
+LABEL version="2.0"
 
-WORKDIR /app
-
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    gcc \
+# Instalar dependências do sistema necessárias para compilar pacotes se preciso
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git \
+    build-essential \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements and install
-COPY env/requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Copy source code
-COPY . .
-
-# Set working directory
+# Definir o diretório de trabalho dentro do contentor
 WORKDIR /app
 
-# Default command: run baseline training
-CMD ["python", "scripts/train_baseline_full.py"]
+# Copiar os requisitos e instalar as bibliotecas Python
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copiar toda a estrutura do projeto para o contentor
+COPY . .
+
+# Comando padrão por defeito: executa a matriz fatorial completa da Fase 2
+CMD ["python", "scripts/CWRU_dataset/master_script.py", "--repetitions", "30"]

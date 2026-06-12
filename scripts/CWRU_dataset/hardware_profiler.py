@@ -1,4 +1,3 @@
-# hardware_profiler.py
 """
 Script Definitivo: Profiling de Hardware na Edge (Raspberry Pi 5)
 Avalia Latência, Retreino Incremental (A2), CPU e RAM com Rigor Estatístico.
@@ -12,6 +11,8 @@ import glob
 import os
 import psutil
 import yaml
+import subprocess
+from datetime import datetime
 from sklearn.svm import OneClassSVM
 from sklearn.ensemble import IsolationForest
 from sklearn.neighbors import LocalOutlierFactor
@@ -37,6 +38,7 @@ FEATURES = config['feature_engineering']['features']
 PERCENTAGEM_REPLAY = config['adaptation']['percentage_replay']
 N_EXECUCOES = config['experiment']['n_executions']
 PROCESSED_DIR = get_abs_path(config['paths']['processed_dir'])
+RESULTS_DIR = get_abs_path(config['paths']['results_dir'])
 
 # Hiperparâmetros do ficheiro de configuração
 OC_SVM_NU = config['models']['oc_svm']['nu']
@@ -53,6 +55,13 @@ LOF_NOVELTY = config['models']['local_outlier_factor']['novelty']
 def get_memory_usage():
     process = psutil.Process(os.getpid())
     return process.memory_info().rss / (1024 * 1024)
+
+def get_git_commit():
+    """Recupera a hash estável do commit atual do Git."""
+    try:
+        return subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).decode('utf-8').strip()
+    except Exception:
+        return "unknown_commit"
 
 def carregar_dados_reais():
     print(f"=== A carregar ficheiros reais da pasta '{PROCESSED_DIR}' ===")
@@ -91,9 +100,16 @@ def executar_profiling_edge(X_treino, X_teste, X_teste_anomalia):
     }
 
     tamanho_replay = int(len(X_treino) * PERCENTAGEM_REPLAY)
-    np.random.seed(42)
+    
+    # Random Seed fixada para garantir reprodutibilidade
+    RANDOM_SEED = 42
+    np.random.seed(RANDOM_SEED)
     indices_replay = np.random.choice(len(X_treino), size=tamanho_replay, replace=False)
     X_hibrido = np.vstack((X_treino[indices_replay], X_teste_anomalia[:200]))
+
+    run_id = datetime.now().strftime("%Y%m%d_%H%M%S")
+    git_commit = get_git_commit()
+    logs_brutos = []
 
     print(f"A executar profiling estatístico com {N_EXECUCOES} iterações...\n")
     print(f"{'Modelo':<20} | {'Lat. Inf. (Média ± IC95%)':<27} | {'Retreino (Média ± IC95%)':<27}")
@@ -103,14 +119,15 @@ def executar_profiling_edge(X_treino, X_teste, X_teste_anomalia):
         latencias = []
         retreinos = []
 
-        for _ in range(N_EXECUCOES):
+        for iteracao in range(N_EXECUCOES):
             modelo.fit(X_treino)
 
             # Inferência
             t0_inf = time.perf_counter()
             modelo.predict(X_teste)
             t1_inf = time.perf_counter()
-            latencias.append(((t1_inf - t0_inf) / len(X_teste)) * 1000)
+            lat_ms = ((t1_inf - t0_inf) / len(X_teste)) * 1000
+            latencias.append(lat_ms)
 
             # Retreino
             if nome == 'Local Outlier Factor':
@@ -118,10 +135,34 @@ def executar_profiling_edge(X_treino, X_teste, X_teste_anomalia):
             else:
                 modelo_retreino = modelo
 
+            # Monitorização de Hardware
+            mem_antes = get_memory_usage()
+            psutil.cpu_percent(interval=None) 
+
             t0_ret = time.perf_counter()
             modelo_retreino.fit(X_hibrido)
             t1_ret = time.perf_counter()
-            retreinos.append((t1_ret - t0_ret) * 1000)
+
+            cpu_pico = psutil.cpu_percent(interval=None)
+            mem_depois = get_memory_usage()
+            
+            ret_ms = (t1_ret - t0_ret) * 1000
+            ram_consumida = max(0.0, mem_depois - mem_antes)
+            
+            retreinos.append(ret_ms)
+
+            # Guardar registo da iteração atual
+            logs_brutos.append({
+                'run_id': run_id,
+                'git_commit': git_commit,
+                'random_seed': RANDOM_SEED,
+                'model': nome,
+                'iteration': iteracao + 1,
+                'latency_ms': lat_ms,
+                'retrain_ms': ret_ms,
+                'cpu_percent': cpu_pico,
+                'ram_mb': ram_consumida
+            })
 
         # Cálculos Estatísticos (IC 95%)
         lat_mean, lat_std = np.mean(latencias), np.std(latencias, ddof=1)
@@ -136,6 +177,14 @@ def executar_profiling_edge(X_treino, X_teste, X_teste_anomalia):
         print(f"{nome:<20} | {str_lat:<27} | {str_ret:<27}")
 
     print("-" * 80)
+    
+    # Guardar os resultados brutos num ficheiro CSV
+    os.makedirs(RESULTS_DIR, exist_ok=True)
+    caminho_csv = os.path.join(RESULTS_DIR, 'benchmark_raw.csv')
+    df_raw = pd.DataFrame(logs_brutos)
+    df_raw.to_csv(caminho_csv, index=False)
+    
+    print(f"\n[!] Log bruto guardado com sucesso em: {caminho_csv}")
 
 if __name__ == "__main__":
     try:

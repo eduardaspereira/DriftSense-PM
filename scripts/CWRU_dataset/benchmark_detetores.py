@@ -15,7 +15,7 @@ from scipy.stats import ks_2samp
 from river.drift import ADWIN
 import warnings
 
-warnings.warnings.filterwarnings('ignore')
+warnings.filterwarnings('ignore')
 
 # --- CARREGAR CONFIGURAÇÃO DINAMICAMENTE ---
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
