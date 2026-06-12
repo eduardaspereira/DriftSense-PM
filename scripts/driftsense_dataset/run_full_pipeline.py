@@ -139,7 +139,7 @@ def main():
     
     # Stage 1: Feature Engineering
     success = orchestrator.run_command(
-        "python feature_engineering.py",
+        f'"{sys.executable}" feature_engineering.py',
         "Feature Engineering (Time+Frequency)",
         1
     )
@@ -149,7 +149,7 @@ def main():
     
     # Stage 2: Baseline Training
     success = orchestrator.run_command(
-        "python train_baseline_full.py",
+        f'"{sys.executable}" train_baseline_full.py',
         "Baseline Model Training (LOF + Evaluation)",
         2
     )
@@ -159,7 +159,7 @@ def main():
     
     # Stage 3: Factorial Evaluation
     success = orchestrator.run_command(
-        "python master_script.py",
+        f'"{sys.executable}" master_script.py',
         "Full Factorial Evaluation (54×5=270 configs)",
         3
     )
@@ -169,7 +169,7 @@ def main():
     
     # Stage 4: Statistical Analysis
     success = orchestrator.run_command(
-        "python statistical_analysis.py",
+        f'"{sys.executable}" statistical_analysis.py',
         "Statistical Analysis (Mean±Std, IC, Wilcoxon)",
         4
     )
@@ -179,7 +179,7 @@ def main():
     
     # Stage 5: Plot Generation
     success = orchestrator.run_command(
-        "python generate_thesis_plots.py",
+        f'"{sys.executable}" generate_thesis_plots.py',
         "Generate Publication Plots",
         5
     )
