@@ -1,0 +1,14 @@
+\begin{table}[htpb]
+\centering
+\caption{Desempenho dos Detetores de Concept Drift}
+\begin{tabular}{lccc}
+\hline
+\textbf{Mecanismo} & \textbf{Falsos Alarmes} & \textbf{FAR (\%)} & \textbf{Atraso (Janelas)} \\
+\hline
+DET1 (OC-SVM) & 0 & 0.00 & 9 \\
+DET2 (KS Test) & 15 & 0.22 & 13 \\
+ADWIN (River) & 2 & 0.03 & 10 \\
+\hline
+\end{tabular}
+\label{tab:benchmark_drift}
+\end{table}

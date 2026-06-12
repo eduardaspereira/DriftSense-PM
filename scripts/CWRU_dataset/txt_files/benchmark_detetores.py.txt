@@ -1,49 +1,27 @@
-# benchmark_detetores.py
 """
 Script Definitivo: Benchmark de Detetores de Concept Drift
 Compara DET1 (OC-SVM otimizado), DET2 (KS) e ADWIN.
 Responde aos Pontos 1, 3 e 4 dos Revisores do artigo DriftSense-PM.
 """
 
-import os
 import pandas as pd
 import numpy as np
-import yaml
 from sklearn.svm import OneClassSVM
 from sklearn.preprocessing import StandardScaler
 from scipy.stats import ks_2samp
 from river.drift import ADWIN
 import warnings
 
-warnings.warnings.filterwarnings('ignore')
+warnings.filterwarnings('ignore')
 
-# --- CARREGAR CONFIGURAÇÃO DINAMICAMENTE ---
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_ROOT = os.path.normpath(os.path.join(SCRIPT_DIR, "../.."))
-CONFIG_PATH = os.path.join(PROJECT_ROOT, "configs", "CWRU_config.yaml")
+CAMINHO_NORMAL = '/home/user/projeto/DriftSense-PM/data/CWRU_dataset/processed/Time_Normal_1_098_features.csv'
+CAMINHO_FALHA = '/home/user/projeto/DriftSense-PM/data/CWRU_dataset/processed/IR007_1_110_features.csv'
+FEATURES = ['AccX_Mean', 'AccX_RMS', 'AccX_Skew', 'AccX_Kurt', 'AccX_PeakFreq_Hz']
 
-def get_abs_path(path_value):
-    if os.path.isabs(path_value):
-        return os.path.normpath(path_value)
-    return os.path.normpath(os.path.join(PROJECT_ROOT, path_value.lstrip('./')))
-
-with open(CONFIG_PATH, 'r') as f:
-    config = yaml.safe_load(f)
-
-PROCESSED_DIR = get_abs_path(config['paths']['processed_dir'])
-CAMINHO_NORMAL = os.path.join(PROCESSED_DIR, 'Time_Normal_1_098_features.csv')
-CAMINHO_FALHA = os.path.join(PROCESSED_DIR, 'IR007_1_110_features.csv')
-
-FEATURES = config['feature_engineering']['features']
-
-DET1_PERSISTENCIA = config['detectors']['det1_error_monitoring']['persistence']
-DET2_TAMANHO_JANELA = config['detectors']['det2_distribution_test']['window_size_ks']
-DET2_ALPHA = config['detectors']['det2_distribution_test']['alpha_ks']
-LIMITE_DISTANCIA_GATE = config['gate']['limite_distancia']
-
-OC_SVM_NU = config['models']['oc_svm']['nu']
-OC_SVM_GAMMA = config['models']['oc_svm']['gamma']
-OC_SVM_KERNEL = config['models']['oc_svm']['kernel']
+DET1_PERSISTENCIA = 10
+DET2_TAMANHO_JANELA = 50
+DET2_ALPHA = 0.001
+LIMITE_DISTANCIA_GATE = 15.0 # Limiar empírico para corrupção total do sensor
 
 def carregar_stream_dados():
     df_normal = pd.read_csv(CAMINHO_NORMAL)[FEATURES]
@@ -98,7 +76,7 @@ def main():
     print(f"Ponto exato do Concept Drift: Janela {ponto_drift}")
     print(f"Total de janelas avaliadas no fluxo: {len(stream_completo)}\n")
 
-    ocsvm = OneClassSVM(kernel=OC_SVM_KERNEL, nu=OC_SVM_NU, gamma=OC_SVM_GAMMA)
+    ocsvm = OneClassSVM(kernel='rbf', nu=0.03, gamma=0.001)
     ocsvm.fit(X_treino)
     
     baseline_rms = X_treino[:, 1]
@@ -121,7 +99,7 @@ def main():
                 metricas['DET1 (OC-SVM)']['erros_consecutivos'] += 1
             else:
                 metricas['DET1 (OC-SVM)']['erros_consecutivos'] = 0
-                 
+                
             if metricas['DET1 (OC-SVM)']['erros_consecutivos'] >= DET1_PERSISTENCIA:
                 if is_fase_normal:
                     metricas['DET1 (OC-SVM)']['fp'] += 1
@@ -147,10 +125,10 @@ def main():
                 if p_value < DET2_ALPHA:
                     if is_fase_normal:
                         metricas['DET2 (KS Test)']['fp'] += 1
+                        janela_deslizante_ks = []
                     else:
                         metricas['DET2 (KS Test)']['delay'] = i - ponto_drift
                         metricas['DET2 (KS Test)']['acionou_falha'] = True
-                    janela_deslizante_ks = []
 
         # 3. ADWIN (River)
         if not metricas['ADWIN (River)']['acionou_falha']:

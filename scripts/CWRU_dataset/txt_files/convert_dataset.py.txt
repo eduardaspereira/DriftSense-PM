@@ -1,15 +1,8 @@
-# convert_dataset.py
-"""
-Descrição: Pipeline de extração de características a partir dos dados .mat do CWRU.
-Autores: Eduarda Pereira, Gonçalo Ferreira, Gonçalo Magalhães
-"""
-
 import os
 import glob
 import scipy.io
 import pandas as pd
 import numpy as np
-import yaml
 from scipy.stats import skew, kurtosis
 from scipy.fft import rfft, rfftfreq
 import warnings
@@ -17,25 +10,19 @@ import warnings
 # Suprimir avisos de divisões por zero em janelas estáticas
 warnings.filterwarnings('ignore', category=RuntimeWarning)
 
-# --- CARREGAR CONFIGURAÇÃO DINAMICAMENTE ---
+# =====================================================================
+# CONFIGURAÇÕES DO PIPELINE DE EXTRAÇÃO
+# =====================================================================
+TAMANHO_JANELA = 200
+PASSO = 50
+TAXA_AMOSTRAGEM = 48000  # Padrão do CWRU 48k
+
+# Definição das pastas
 DIRETORIO_SCRIPT = os.path.dirname(os.path.abspath(__file__))
-PROJECT_ROOT = os.path.normpath(os.path.join(DIRETORIO_SCRIPT, "../.."))
-CONFIG_PATH = os.path.join(PROJECT_ROOT, "configs", "CWRU_config.yaml")
+RAIZ_PROJETO = os.path.abspath(os.path.join(DIRETORIO_SCRIPT, ".."))
 
-def get_abs_path(path_value):
-    if os.path.isabs(path_value):
-        return os.path.normpath(path_value)
-    return os.path.normpath(os.path.join(PROJECT_ROOT, path_value.lstrip('./')))
-
-with open(CONFIG_PATH, 'r') as f:
-    config = yaml.safe_load(f)
-
-TAMANHO_JANELA = config['feature_engineering']['window_size']
-PASSO = config['feature_engineering']['step_size']
-TAXA_AMOSTRAGEM = config['system']['sampling_rate_hz']
-
-PASTA_ENTRADA = os.path.join(get_abs_path(config['paths']['raw_data_dir']), "raw")
-PASTA_SAIDA = get_abs_path(config['paths']['processed_dir'])
+PASTA_ENTRADA = os.path.join(RAIZ_PROJETO, "data", "CWRU_dataset", "raw", "raw")
+PASTA_SAIDA = os.path.join(RAIZ_PROJETO, "data", "CWRU_dataset", "processed")
 
 # Criar a pasta de destino automaticamente se não existir
 if not os.path.exists(PASTA_SAIDA):

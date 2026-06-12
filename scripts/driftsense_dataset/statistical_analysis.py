@@ -1,11 +1,7 @@
+# statistical_analysis.py
 """
 Descrição: Análise estatística de resultados experimentais do DriftSense-PM.
 Autores: Eduarda Pereira, Gonçalo Ferreira, Gonçalo Magalhães
-
-Este módulo calcula estatísticas resumo (Média ± Desvio), intervalos de
-confiança de 95% e executa testes de hipótese (Wilcoxon, ANOVA) sobre os
-resultados da matriz factorial completa. Os resultados são guardados em CSVs
-para posterior relatório e análise.
 """
 
 import sys
@@ -18,11 +14,22 @@ import os
 from scipy.stats import wilcoxon, f_oneway
 import yaml
 
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+DATASET_NAME = os.path.basename(SCRIPT_DIR)
+CONFIG_NAME = f"{DATASET_NAME.replace('_dataset', '')}_config.yaml"
+PROJECT_ROOT = os.path.normpath(os.path.join(SCRIPT_DIR, "../.."))
+CONFIG_PATH = os.path.join(PROJECT_ROOT, "configs", CONFIG_NAME)
+
+def get_abs_path(path_value):
+    if os.path.isabs(path_value):
+        return os.path.normpath(path_value)
+    return os.path.normpath(os.path.join(PROJECT_ROOT, path_value.lstrip('./')))
+
 # Load config
-with open('../configs/driftsense_dataset/config.yaml', 'r') as f:
+with open(CONFIG_PATH, 'r') as f:
     config = yaml.safe_load(f)
 
-RESULTS_DIR = config['paths']['results_dir']
+RESULTS_DIR = get_abs_path(config['paths']['results_dir'])
 
 def load_factorial_results(filename='full_factorial_results.csv'):
     """Load raw factorial results"""

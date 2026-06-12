@@ -1,9 +1,7 @@
+# generate_thesis_plots.py
 """
 Descrição: Geração de figuras..
 Autores: Eduarda Pereira, Gonçalo Ferreira, Gonçalo Magalhães
-
-Produz um conjunto de figuras (PNG) a partir dos resultados métricos da
-avaliação factorial.
 """
 
 import pandas as pd
@@ -11,7 +9,26 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 import os
+import yaml
 from matplotlib.patches import Rectangle
+
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+DATASET_NAME = os.path.basename(SCRIPT_DIR)
+CONFIG_NAME = f"{DATASET_NAME.replace('_dataset', '')}_config.yaml"
+PROJECT_ROOT = os.path.normpath(os.path.join(SCRIPT_DIR, "../.."))
+CONFIG_PATH = os.path.join(PROJECT_ROOT, "configs", CONFIG_NAME)
+
+def get_abs_path(path_value):
+    if os.path.isabs(path_value):
+        return os.path.normpath(path_value)
+    return os.path.normpath(os.path.join(PROJECT_ROOT, path_value.lstrip('./')))
+
+with open(CONFIG_PATH, 'r') as f:
+    config = yaml.safe_load(f)
+
+FIGURES_DIR = get_abs_path(config['paths']['figures_dir'])
+RESULTS_DIR = get_abs_path(config['paths']['results_dir'])
+os.makedirs(FIGURES_DIR, exist_ok=True)
 
 # 1. Configurações Visuais
 plt.rcParams.update({
@@ -35,11 +52,8 @@ plt.rcParams.update({
 sns.set_theme(style="whitegrid", context="paper", font_scale=1.0)
 sns.set_palette("husl")
 
-FIGURES_DIR = "../results/figures/"
-os.makedirs(FIGURES_DIR, exist_ok=True)
-
 # 2. Carregar os Dados
-df = pd.read_csv("../results/metrics/full_factorial_results.csv")
+df = pd.read_csv(os.path.join(RESULTS_DIR, "full_factorial_results.csv"))
 
 # Substituir "N/D" e "Não Recuperou" por NaN 
 df['Delay (Janelas)'] = pd.to_numeric(df['Delay (Janelas)'], errors='coerce')
@@ -319,7 +333,7 @@ metrics_text = '''KEY PERFORMANCE METRICS:
 
 ax.text(5, 0.4, metrics_text, ha='center', fontsize=8.5, family='monospace',
        bbox=dict(boxstyle='round,pad=0.8', facecolor='#FFFACD', alpha=0.95,
-                edgecolor='#FF6B6B', linewidth=2.5),
+                 edgecolor='#FF6B6B', linewidth=2.5),
        verticalalignment='top')
 
 plt.tight_layout()

@@ -1,4 +1,3 @@
-# analyze_cwru_format.py
 """
 CWRU Raw .mat File Analysis & Format Recommendations
 Analyzes bearing fault data structure and recommends optimal storage format
@@ -13,7 +12,6 @@ This script:
 import os 
 import numpy as np
 import pandas as pd
-import yaml
 from scipy import io as sio
 from scipy.signal import welch
 from scipy.fft import fft, fftfreq
@@ -21,22 +19,7 @@ import warnings
 
 warnings.filterwarnings('ignore')
 
-# --- CARREGAR CONFIGURAÇÃO DINAMICAMENTE ---
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_ROOT = os.path.normpath(os.path.join(SCRIPT_DIR, "../.."))
-CONFIG_PATH = os.path.join(PROJECT_ROOT, "configs", "CWRU_config.yaml")
-
-def get_abs_path(path_value):
-    if os.path.isabs(path_value):
-        return os.path.normpath(path_value)
-    return os.path.normpath(os.path.join(PROJECT_ROOT, path_value.lstrip('./')))
-
-with open(CONFIG_PATH, 'r') as f:
-    config = yaml.safe_load(f)
-
-RAW_DIR = os.path.join(get_abs_path(config['paths']['raw_data_dir']), "raw")
-PROCESSED_DIR = get_abs_path(config['paths']['processed_dir'])
-RESULTS_DIR = get_abs_path(config['paths']['results_dir'])
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # ============================================================================
 # PART 1: INSPECT .MAT FILE STRUCTURE
@@ -50,14 +33,15 @@ def morlet2(M, s, w=5.0):
 def analyze_mat_files():
     """Inspect a sample .mat file to understand data structure."""
     
-    mat_files = [f for f in os.listdir(RAW_DIR) if f.endswith('.mat')][:3]  # First 3 files
+    mat_dir = os.path.join(PROJECT_ROOT, "data", "CWRU_dataset", "raw", "raw")
+    mat_files = [f for f in os.listdir(mat_dir) if f.endswith('.mat')][:3]  # First 3 files
     
     print("\n" + "="*80)
     print("CWRU RAW .MAT FILES ANALYSIS")
     print("="*80)
     
     for mat_file in mat_files:
-        mat_path = os.path.join(RAW_DIR, mat_file)
+        mat_path = os.path.join(mat_dir, mat_file)
         print(f"\n[File: {mat_file}]")
         
         try:
@@ -269,7 +253,8 @@ STANDARDIZED FILENAME PATTERN:
 def assess_data_quality():
     """Assess current data quality and identify gaps."""
     
-    csv_files = [f for f in os.listdir(PROCESSED_DIR) if f.endswith('_features.csv')]
+    processed_dir = os.path.join(PROJECT_ROOT, "data", "CWRU_dataset", "processed")
+    csv_files = [f for f in os.listdir(processed_dir) if f.endswith('_features.csv')]
     
     report = []
     report.append("\n" + "="*80)
@@ -282,7 +267,7 @@ def assess_data_quality():
     all_features = set()
     
     for csv_file in sorted(csv_files):
-        df = pd.read_csv(os.path.join(PROCESSED_DIR, csv_file))
+        df = pd.read_csv(os.path.join(processed_dir, csv_file))
         features = [c for c in df.columns if c not in ['Scenario', 'Timestamp', 'SysState', 'SampleCount']]
         all_features.update(features)
         
@@ -296,7 +281,6 @@ def assess_data_quality():
         })
     
     stats_df = pd.DataFrame(file_stats)
-    
     report.append("\nPer-File Statistics:")
     report.append(stats_df.to_string())
     
@@ -340,6 +324,7 @@ def generate_feature_code():
 def compute_advanced_features(signal, fs=2.0, window_name='hann'):
     """
     Compute advanced features for bearing fault detection.
+    
     Parameters:
         signal: 1D vibration signal (numpy array)
         fs: Sampling frequency (Hz)
@@ -456,7 +441,7 @@ def main():
                   "\n\n" + "="*80 + "\nIMPLEMENTATION TEMPLATE\n" + "="*80 + code_template)
     
     report_path = os.path.join(
-        RESULTS_DIR,
+        PROJECT_ROOT, "results", "metrics",
         f"cwru_analysis_recommendations_{pd.Timestamp.now().strftime('%Y%m%d_%H%M%S')}.txt"
     )
     os.makedirs(os.path.dirname(report_path), exist_ok=True)

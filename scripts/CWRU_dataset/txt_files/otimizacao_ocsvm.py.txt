@@ -1,4 +1,3 @@
-# otimizacao_ocsvm.py
 """
 Script de Otimização de Hiperparâmetros para o One-Class SVM (DriftSense-PM)
 Executa um varrimento estatístico rigoroso (Grid Search) respeitando a premissa não supervisionada.
@@ -7,8 +6,6 @@ Executa um varrimento estatístico rigoroso (Grid Search) respeitando a premissa
 import pandas as pd
 import numpy as np
 import glob
-import os
-import yaml
 from sklearn.svm import OneClassSVM
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import f1_score, confusion_matrix
@@ -16,27 +13,12 @@ import warnings
 
 warnings.filterwarnings('ignore')
 
-# --- CARREGAR CONFIGURAÇÃO DINAMICAMENTE ---
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_ROOT = os.path.normpath(os.path.join(SCRIPT_DIR, "../.."))
-CONFIG_PATH = os.path.join(PROJECT_ROOT, "configs", "CWRU_config.yaml")
-
-def get_abs_path(path_value):
-    if os.path.isabs(path_value):
-        return os.path.normpath(path_value)
-    return os.path.normpath(os.path.join(PROJECT_ROOT, path_value.lstrip('./')))
-
-with open(CONFIG_PATH, 'r') as f:
-    config = yaml.safe_load(f)
-
-FEATURES = config['feature_engineering']['features']
-PROCESSED_DIR = get_abs_path(config['paths']['processed_dir'])
+FEATURES = ['AccX_Mean', 'AccX_RMS', 'AccX_Skew', 'AccX_Kurt', 'AccX_PeakFreq_Hz']
 
 def carregar_e_separar_dados():
-    caminho_busca = os.path.join(PROCESSED_DIR, '*_features.csv')
-    ficheiros_csv = glob.glob(caminho_busca)
+    ficheiros_csv = glob.glob('data/CWRU_dataset/processed/*_features.csv')
     if not ficheiros_csv:
-        raise ValueError(f"ERRO: Nenhum ficheiro CSV encontrado na pasta '{PROCESSED_DIR}'.")
+        raise ValueError("ERRO: Nenhum ficheiro CSV encontrado na pasta 'data/CWRU_dataset/processed/'.")
 
     ficheiro_normal = [f for f in ficheiros_csv if 'Normal' in f]
     df_normal = pd.read_csv(ficheiro_normal[0])
@@ -110,12 +92,12 @@ def procurar_melhores_parametros():
             
             gamma_str = str(gamma)
             print(f"{nu:<8} | {gamma_str:<13} | {f1:<12.4f} | {far:<7.2f}%")
-        
+            
             # Guardar se for o melhor F1-Score e mantiver a FAR civilizada (abaixo de 5%)
             if f1 > melhor_f1 and far < 5.0:
                 melhor_f1 = f1
                 melhores_params = {'nu': nu, 'gamma': gamma}
-            
+                
     print("\n" + "="*60)
     print(" RESULTADO DA OTIMIZAÇÃO HISTÓRICA")
     print("="*60)

@@ -1,4 +1,3 @@
-# selecao_modelos.py
 """
 Script Definitivo: Seleção de Modelos Não Supervisionados na Edge (DriftSense-PM)
 Treina apenas no regime nominal e testa contra anomalias.
@@ -12,7 +11,6 @@ import json
 import glob
 import os
 import psutil
-import yaml
 from sklearn.svm import OneClassSVM
 from sklearn.ensemble import IsolationForest
 from sklearn.neighbors import LocalOutlierFactor
@@ -22,34 +20,9 @@ import warnings
 
 warnings.filterwarnings('ignore')
 
-# --- CARREGAR CONFIGURAÇÃO DINAMICAMENTE ---
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_ROOT = os.path.normpath(os.path.join(SCRIPT_DIR, "../.."))
-CONFIG_PATH = os.path.join(PROJECT_ROOT, "configs", "CWRU_config.yaml")
-
-def get_abs_path(path_value):
-    if os.path.isabs(path_value):
-        return os.path.normpath(path_value)
-    return os.path.normpath(os.path.join(PROJECT_ROOT, path_value.lstrip('./')))
-
-with open(CONFIG_PATH, 'r') as f:
-    config = yaml.safe_load(f)
-
-FEATURES = config['feature_engineering']['features']
-PERCENTAGEM_REPLAY = config['adaptation']['percentage_replay']
-PROCESSED_DIR = get_abs_path(config['paths']['processed_dir'])
-
-# Hiperparâmetros das configurações do CWRU
-OC_SVM_NU = config['models']['oc_svm']['nu']
-OC_SVM_GAMMA = config['models']['oc_svm']['gamma']
-OC_SVM_KERNEL = config['models']['oc_svm']['kernel']
-
-IF_CONTAMINATION = config['models']['isolation_forest']['contamination']
-IF_N_ESTIMATORS = config['models']['isolation_forest']['n_estimators']
-
-LOF_CONTAMINATION = config['models']['local_outlier_factor']['contamination']
-LOF_N_NEIGHBORS = config['models']['local_outlier_factor']['n_neighbors']
-LOF_NOVELTY = config['models']['local_outlier_factor']['novelty']
+# O teu "Quinteto de Ouro" (Maldição da Dimensionalidade resolvida)
+FEATURES = ['AccX_Mean', 'AccX_RMS', 'AccX_Skew', 'AccX_Kurt', 'AccX_PeakFreq_Hz']
+PERCENTAGEM_REPLAY = 0.15
 
 def get_memory_usage():
     """Retorna o uso atual de RAM do processo em MB."""
@@ -58,10 +31,11 @@ def get_memory_usage():
 
 def carregar_dados_nao_supervisionados():
     print("=== A carregar e a dividir datasets (Treino = Apenas Normal) ===")
-    ficheiros_csv = glob.glob(os.path.join(PROCESSED_DIR, '*_features.csv'))
+    caminho_dados = "/home/user/projeto/DriftSense-PM/data/CWRU_dataset/processed/"
+    ficheiros_csv = glob.glob(os.path.join(caminho_dados, '*_features.csv'))
 
     if not ficheiros_csv:
-        raise ValueError(f"ERRO: Nenhum ficheiro CSV encontrado na pasta '{PROCESSED_DIR}'.")
+        raise ValueError("ERRO: Nenhum ficheiro CSV encontrado na pasta 'csvs/'.")
 
     # 1. Isolar o ficheiro de comportamento Normal
     ficheiro_normal = [f for f in ficheiros_csv if 'Normal' in f]
@@ -102,9 +76,9 @@ def carregar_dados_nao_supervisionados():
 
 def executar_benchmark_global(X_treino, X_teste, y_teste, X_teste_anomalia):
     modelos = {
-        'One-Class SVM': OneClassSVM(kernel=OC_SVM_KERNEL, nu=OC_SVM_NU, gamma=OC_SVM_GAMMA),
-        'Isolation Forest': IsolationForest(contamination=IF_CONTAMINATION, n_estimators=IF_N_ESTIMATORS, random_state=42),
-        'Local Outlier Factor': LocalOutlierFactor(contamination=LOF_CONTAMINATION, n_neighbors=LOF_N_NEIGHBORS, novelty=LOF_NOVELTY)
+        'One-Class SVM': OneClassSVM(kernel='rbf', nu=0.05, gamma=0.01),
+        'Isolation Forest': IsolationForest(contamination=0.05, n_estimators=100, random_state=42),
+        'Local Outlier Factor': LocalOutlierFactor(contamination=0.05, n_neighbors=20, novelty=True)
     }
 
     tamanho_replay = int(len(X_treino) * PERCENTAGEM_REPLAY)
@@ -132,7 +106,7 @@ def executar_benchmark_global(X_treino, X_teste, y_teste, X_teste_anomalia):
         far = (fp / (fp + tn)) * 100 if (fp + tn) > 0 else 0.0
 
         if nome == 'Local Outlier Factor':
-            modelo_retreino = LocalOutlierFactor(contamination=LOF_CONTAMINATION, n_neighbors=LOF_N_NEIGHBORS, novelty=LOF_NOVELTY)
+            modelo_retreino = LocalOutlierFactor(contamination=0.05, n_neighbors=20, novelty=True)
         else:
             modelo_retreino = modelo
 

@@ -1,10 +1,7 @@
+# train_baseline_full.py
 """
 Descrição: Treino do modelo baseline e benchmark de detetores.
 Autores: Eduarda Pereira, Gonçalo Ferreira, Gonçalo Magalhães
-
-Este script treina vários detectores (IsolationForest, One-Class SVM, LOF),
-executa um benchmark sobre janelas de teste e exporta o modelo vencedor e
-o scaler para uso posterior na avaliação factorial.
 """
 
 import os
@@ -26,12 +23,15 @@ import warnings
 warnings.filterwarnings('ignore')
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
+DATASET_NAME = os.path.basename(SCRIPT_DIR)
+CONFIG_NAME = f"{DATASET_NAME.replace('_dataset', '')}_config.yaml"
+PROJECT_ROOT = os.path.normpath(os.path.join(SCRIPT_DIR, "../.."))
+CONFIG_PATH = os.path.join(PROJECT_ROOT, "configs", CONFIG_NAME)
 
-
-def resolve_project_path(path_value):
-    normalized = path_value.removeprefix("../")
-    return os.path.normpath(os.path.join(PROJECT_ROOT, normalized))
+def get_abs_path(path_value):
+    if os.path.isabs(path_value):
+        return os.path.normpath(path_value)
+    return os.path.normpath(os.path.join(PROJECT_ROOT, path_value.lstrip('./')))
 
 parser = argparse.ArgumentParser(description="Treino offline dos 3 modelos de baseline.")
 parser.add_argument("--if-n-estimators", type=int, default=100)
@@ -44,14 +44,13 @@ parser.add_argument("--lof-contamination", type=float, default=1.0)
 args = parser.parse_args()
 
 # 1. CONFIGURAÇÕES E PASTAS (Selo de Reprodutibilidade ACM)
-CONFIG_PATH = resolve_project_path("../configs/driftsense_dataset/config.yaml")
 with open(CONFIG_PATH, 'r') as f:
     config = yaml.safe_load(f)
 
-PROCESSED_DIR = resolve_project_path(config['paths']['processed_dir'])
-FIGURES_DIR = resolve_project_path(config['paths']['figures_dir'])
-METRICS_DIR = resolve_project_path(config['paths']['results_dir'])
-MODELS_DIR = resolve_project_path(config['paths']['models_dir'])
+PROCESSED_DIR = get_abs_path(config['paths']['processed_dir'])
+FIGURES_DIR = get_abs_path(config['paths']['figures_dir'])
+METRICS_DIR = get_abs_path(config['paths']['results_dir'])
+MODELS_DIR = get_abs_path(config['paths']['models_dir'])
 
 for folder in [FIGURES_DIR, METRICS_DIR, MODELS_DIR]:
     os.makedirs(folder, exist_ok=True)
@@ -130,7 +129,7 @@ for name, model in models.items():
     for line in lines:
         if 'weighted avg' in line:
             parts = line.split()
-            f1_weighted = float(parts[-2])  # F1 score está penúltima coluna
+            f1_weighted = float(parts[-2])
             model_results[name] = f1_weighted
             print(f"{name} F1 (weighted): {f1_weighted:.3f}")
             

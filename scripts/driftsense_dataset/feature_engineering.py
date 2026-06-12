@@ -1,10 +1,7 @@
+# feature_engineering.py
 """
 Descrição: Extração de features temporais e de frequência a partir dos dados raw.
 Autores: Eduarda Pereira, Gonçalo Ferreira, Gonçalo Magalhães
-
-Script responsável por transformar ficheiros raw em janelas de features
-utilizáveis pelos modelos de deteção. Produz ficheiros CSV no diretório
-`processed` definidos em `configs/driftsense_dataset/config.yaml`.
 """
 
 import os
@@ -17,13 +14,23 @@ import warnings
 
 warnings.filterwarnings('ignore', category=RuntimeWarning)
 
-# 1. CARREGAR CONFIGURAÇÃO
-CONFIG_PATH = "../../configs/driftsense_dataset/config.yaml"
+# 1. CARREGAR CONFIGURAÇÃO DINAMICAMENTE
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+DATASET_NAME = os.path.basename(SCRIPT_DIR)
+CONFIG_NAME = f"{DATASET_NAME.replace('_dataset', '')}_config.yaml"
+PROJECT_ROOT = os.path.normpath(os.path.join(SCRIPT_DIR, "../.."))
+CONFIG_PATH = os.path.join(PROJECT_ROOT, "configs", CONFIG_NAME)
+
+def get_abs_path(path_value):
+    if os.path.isabs(path_value):
+        return os.path.normpath(path_value)
+    return os.path.normpath(os.path.join(PROJECT_ROOT, path_value.lstrip('./')))
+
 with open(CONFIG_PATH, 'r') as f:
     config = yaml.safe_load(f)
 
-RAW_DIR = config['paths']['raw_data_dir']
-PROCESSED_DIR = config['paths']['processed_dir']
+RAW_DIR = get_abs_path(config['paths']['raw_data_dir'])
+PROCESSED_DIR = get_abs_path(config['paths']['processed_dir'])
 TAMANHO_JANELA = config['feature_engineering']['window_size']
 TAXA_AMOSTRAGEM = config['system']['sampling_rate_hz']
 PASSO = config['feature_engineering']['step_size']
@@ -33,10 +40,7 @@ colunas_corretas = ['Timestamp', 'Scenario', 'Temp', 'Hum', 'AccX', 'AccY', 'Acc
 colunas_vibracao = ['AccX', 'AccY', 'AccZ']
 
 def calcular_frequencia_pico(dados, fs):
-    """Calcular a frequência de pico de um sinal.
-
-    Retorna 0.0 se a janela for inválida ou constante.
-    """
+    """Calcular a frequência de pico de um sinal."""
     n = len(dados)
     if n == 0 or np.all(dados == dados[0]):
         return 0.0
@@ -57,7 +61,6 @@ def main():
 
         try:
             df_bruto = pd.read_csv(caminho_entrada, names=colunas_corretas, header=0)
-
             linhas_extraidas = []
 
             for i in range(0, len(df_bruto) - TAMANHO_JANELA + 1, PASSO):

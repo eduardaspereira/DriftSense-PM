@@ -1,10 +1,7 @@
+# run_experiment.py
 """
 Descrição: Logger e controlador para aquisição de dados raw a partir do sistema.
 Autores: Eduarda Pereira, Gonçalo Ferreira, Gonçalo Magalhães
-
-Este script comunica com o microcontrolador via serial, lê sensores e grava
-os dados raw em CSV com um cabeçalho consistente. Inclui controlos GPIO para
-simular um sistema de teste (LEDs, ventoinha, botão).
 """
 
 import serial
@@ -19,8 +16,18 @@ from colorama import Fore, Style, init
 
 init(autoreset=True)    
 
-# --- CARREGAR CONFIGURAÇÃO ---
-CONFIG_PATH = "../configs/driftsense_dataset/config.yaml"
+# --- CARREGAR CONFIGURAÇÃO DINAMICAMENTE ---
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+DATASET_NAME = os.path.basename(SCRIPT_DIR)
+CONFIG_NAME = f"{DATASET_NAME.replace('_dataset', '')}_config.yaml"
+PROJECT_ROOT = os.path.normpath(os.path.join(SCRIPT_DIR, "../.."))
+CONFIG_PATH = os.path.join(PROJECT_ROOT, "configs", CONFIG_NAME)
+
+def get_abs_path(path_value):
+    if os.path.isabs(path_value):
+        return os.path.normpath(path_value)
+    return os.path.normpath(os.path.join(PROJECT_ROOT, path_value.lstrip('./')))
+
 if os.path.exists(CONFIG_PATH):
     with open(CONFIG_PATH, 'r') as f:
         config = yaml.safe_load(f)
@@ -29,12 +36,12 @@ else:
     config = {
         'experiment': {'scenario_id': 'RAW_DATA'},
         'system': {'dataset_version': 'v1.0', 'serial_port': '/dev/ttyACM0', 'baud_rate': 115200},
-        'paths': {'raw_data_dir': '../data/driftsense_dataset/raw'}
+        'paths': {'raw_data_dir': f'data/{DATASET_NAME}/raw'}
     }
 
 SCENARIO = config['experiment']['scenario_id']
 VERSION = config['system']['dataset_version']
-RAW_DIR = config['paths']['raw_data_dir']
+RAW_DIR = get_abs_path(config['paths']['raw_data_dir'])
 CSV_FILENAME = os.path.join(RAW_DIR, f"dataset_{SCENARIO}_{VERSION}_raw.csv")
 
 # --- GPIO ---
@@ -71,7 +78,6 @@ def main():
         
         with open(CSV_FILENAME, mode='a', newline='') as csv_file:
             writer = csv.writer(csv_file)
-            # CORREÇÃO APLICADA: Cabeçalho alinhado com as variáveis escritas
             writer.writerow(["Timestamp", "Scenario", "Temp", "Hum", "AccX", "AccY", "AccZ", "SysState", "SampleCount"])
 
             print(f"{Fore.CYAN}{Style.BRIGHT}=== DriftSense: RAW a 2Hz (Controlo Manual) ===")
@@ -98,7 +104,6 @@ def main():
                             ultimo_tempo_gravacao = tempo_atual 
                             
                             ax, ay, az = float(nums[0]), float(nums[1]), float(nums[2])
-                            # CORREÇÃO APLICADA: Timestamp com milissegundos
                             ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
                             sys_state = 1 if system_enabled else 0
                             sample_count += 1
