@@ -1,64 +1,76 @@
-# ==========================================
-# DriftSense-PM: Configuration File (Unified & Conference-Ready)
-# ==========================================
+  # ==========================================
+  # DriftSense-PM: Configuration File (Unified & Conference-Ready)
+  # ==========================================
 
-system:
-  serial_port: '/dev/ttyACM0'
-  baud_rate: 115200
-  sampling_rate_hz: 48000
-  dataset_version: "v1.0"     # Frequência nativa do CWRU (48k)
+  system:
+    serial_port: '/dev/ttyACM0'
+    baud_rate: 115200
+    sampling_rate_hz: 20000.0
+    dataset_version: "v3.0"    
 
-experiment:
-  project_name: "DriftSense-PM"
-  scenario_id: "IMS_Bearings"           
-  repetitions: 30            # Repetições padrão para a matriz fatorial
-  n_executions: 30            # Rigor estatístico extra exigido para o perfil de hardware e IC95%
-  random_seed: 42             # Seed global para garantir determinismo 
-  device: "Raspberry Pi 5"
+  experiment:
+    project_name: "DriftSense-PM"
+    scenario_id: "IMS_Bearings"           
+    repetitions: 30            # Repetições padrão para a matriz fatorial
+    n_executions: 30            # Rigor estatístico extra exigido para o perfil de hardware e IC95%
+    random_seed: 42             # Seed global para garantir determinismo 
+    device: "Raspberry Pi 5"
 
-feature_engineering:
-  window_size: 200             # Tamanho da janela ideal para CWRU
-  step_size: 50               # Passo para manter o overlap de 75%
-  features: ['AccX_Mean', 'AccX_RMS', 'AccX_Skew', 'AccX_Kurt', 'AccX_PeakFreq_Hz'] # Quinteto trancado
+  feature_engineering:
+    window_size: 200             # Tamanho da janela ideal para CWRU
+    step_size: 50               # Passo para manter o overlap de 75%
+    features: ['AccX_RMS', 'Energy_HighFreq', 'AccX_PeakFreq_Hz'] 
+    # ['AccX_RMS', 'AccX_Skew', 'AccX_Kurt', 'AccX_PeakFreq_Hz', 'Energy_1X_Hz', 'Energy_HighFreq', 'Crest_Factor'] 
 
-models:
-  oc_svm:                     # Hiperparâmetros ótimos validados empiricamente para o artigo 
-    nu: 0.03
-    gamma: 0.001
-    kernel: 'rbf'
-  isolation_forest:
-    contamination: 0.03
-    n_estimators: 100
-  local_outlier_factor:
-    contamination: 0.03
-    n_neighbors: 20
-    novelty: true
+  models:
+    oc_svm:                     # Hiperparâmetros ótimos validados empiricamente para o artigo 
+      nu: 0.03
+      gamma: 0.001
+      kernel: 'rbf'
+    isolation_forest:
+      contamination: 0.03
+      n_estimators: 100
+    local_outlier_factor:
+      contamination: 0.03
+      n_neighbors: 20
+      novelty: true
 
-detectors:
-  det1_error_monitoring:
-    f1_threshold: 0.85
-    persistence: 10          # Número de janelas sustentadas 
+  detectors:
+    det1_error_monitoring:
+      f1_threshold: 0.85
+      persistence: 10          # Número de janelas sustentadas 
+    det2_distribution_test:
+      alpha_ks: 0.001          # Reduzido para 0.001 para mitigar os 15 falsos alarmes no ambiente ruidoso 
+      window_size_ks: 50       # Janela deslizante para o teste estatístico
+
+  adaptation:
+    percentage_replay: 0.15     # 15% de Replay Buffer para ancorar a fronteira geométrica e travar o Forgetting 
+    a1_periodic_retrain:
+      retrain_interval: 50     # Retreina a cada 50 janelas independentemente do erro
+    a2_lightweight:
+      fine_tune_trees: 10      
+      buffer_size: 20          # Tamanho da memória recente usada para adaptar por fine-tuning
+
   det2_distribution_test:
-    alpha_ks: 0.001          # Reduzido para 0.001 para mitigar os 15 falsos alarmes no ambiente ruidoso 
-    window_size_ks: 50       # Janela deslizante para o teste estatístico
+      methods: ['ks', 'psi', 'kl']     # Varrimento de métodos estatísticos exigido para o artigo
+      alpha_ks: 0.001
+      psi_threshold: 0.2               # Limiar standard da literatura para desvios severos
+      window_size_ks: 100
 
-adaptation:
-  percentage_replay: 0.15     # 15% de Replay Buffer para ancorar a fronteira geométrica e travar o Forgetting 
-  a1_periodic_retrain:
-    retrain_interval: 50     # Retreina a cada 50 janelas independentemente do erro
-  a2_lightweight:
-    fine_tune_trees: 10      
-    buffer_size: 20          # Tamanho da memória recente usada para adaptar por fine-tuning
+  context_validation:
+      regime_shift_freq_hz: 5.0        # Tolerância na PeakFreq antes de considerar mudança de RPM
+      critical_energy_high: 15.0       # Se a energia alta ultrapassar isto, é falha estrutural (Veto!)
 
-gate:
-  limite_distancia: 22.0      # Validation Gate: Limiar de corte euclidiano contra data poisoning do sensor
 
-metrics:
-  recovery_threshold: 0.85
+  gate:
+    limite_distancia: 22.0      # Validation Gate: Limiar de corte euclidiano contra data poisoning do sensor
 
-paths:                        # Estrutura de diretórios idêntica ao layout exigido pela norma ACM 
-  raw_data_dir: "../data/IMS_Bearings/raw/2nd_test/"
-  processed_dir: "../data/IMS_Bearings/processed/2nd_test/"
-  models_dir: "../models/IMS_Bearings/2nd_test/"
-  results_dir: "../results/IMS_Bearings/metrics/2nd_test/"
-  figures_dir: "../results/IMS_Bearings/figures/2nd_test/"
+  metrics:
+    recovery_threshold: 0.85
+
+  paths:                        # Estrutura de diretórios idêntica ao layout exigido pela norma ACM 
+    raw_data_dir: "../data/IMS_Bearings/raw/2nd_test/"
+    processed_dir: "../data/IMS_Bearings/processed/2nd_test/"
+    models_dir: "../models/IMS_Bearings/2nd_test/"
+    results_dir: "../results/IMS_Bearings/metrics/2nd_test/"
+    figures_dir: "../results/IMS_Bearings/figures/2nd_test/"

@@ -1,0 +1,23 @@
+{
+    "A0_None": {
+        "f1_score": 0.9648,
+        "retrains": 0,
+        "vetos": 0,
+        "energia_mj": 0.0,
+        "detection_delay": null
+    },
+    "A1_Periodic": {
+        "f1_score": 0.6267,
+        "retrains": 7,
+        "vetos": 0,
+        "energia_mj": 68.46,
+        "detection_delay": null
+    },
+    "A2_Lightweight_Veto": {
+        "f1_score": 0.9648,
+        "retrains": 0,
+        "vetos": 11,
+        "energia_mj": 0.0,
+        "detection_delay": 20
+    }
+}

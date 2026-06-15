@@ -2,6 +2,12 @@
 """
 Descrição: Extração de features temporais e espectrais avançadas (IMS Bearings Dataset).
 Autores: Eduarda Pereira, Gonçalo Ferreira, Gonçalo Magalhães
+
+PROPOSTA METODOLÓGICA (ISO 10816 / Critério Estatístico de Severidade):
+Substituição da rotulagem arbitrária (hardcoded) por uma transição baseada na
+física do sinal. Estabelece-se a linha de base (Baseline) com os primeiros 100 ficheiros.
+O estado "D1_Ligeiro" e "D5_Catastrofico" são determinados através de multiplicadores
+do RMS nominal, simulando os limiares de severidade industrial de vibração.
 """
 
 import os
@@ -31,11 +37,8 @@ except FileNotFoundError:
     print(f"ERRO: Ficheiro de configuração não encontrado em: {CONFIG_PATH}")
     sys.exit(1)
 
-# Extrair caminhos e configurações do YAML
 RAW_DATA_DIR = get_abs_path(config['paths']['raw_data_dir'])
 PROCESSED_DATA_DIR = get_abs_path(config['paths']['processed_dir'])
-
-# Taxa de amostragem padrão do IMS Dataset (20.48 kHz)
 TAXA_AMOSTRAGEM = config['system'].get('sampling_rate_hz', 20480.0) 
 
 def extract_features_from_file(file_path):
@@ -48,34 +51,25 @@ def extract_features_from_file(file_path):
     janela = df[0].values
     n = len(janela)
     
-    # Se o ficheiro estiver corrompido ou incompleto, salta
     if n < 20480:
         return None
         
     std_val = np.std(janela)
     rms = np.sqrt(np.mean(janela**2))
-    
-    # --- PROCESSAMENTO ESPECTRAL (FFT COM REMOÇÃO DE COMPONENTE DC) ---
-    # Subtrair a média para centrar o sinal e eliminar o pico nos 0 Hz
     sinal_centrado = janela - np.mean(janela)
     
     yf = np.abs(rfft(sinal_centrado))
     xf = rfftfreq(n, 1 / TAXA_AMOSTRAGEM)
     
-    # Encontrar a frequência de pico real (ignorando o primeiro elemento espectral)
     idx_pico = np.argmax(yf[1:]) + 1
     freq_pico = round(xf[idx_pico], 3)
     
-    # 1. Energia na frequência de rotação (1X: ~33.33 Hz para 2000 RPM)
-    # Criamos uma banda de guarda tolerante entre 30 Hz e 36 Hz
     indices_1x = np.where((xf >= 30.0) & (xf <= 36.0))[0]
     energy_1x = round(np.sum(yf[indices_1x]**2), 4) if len(indices_1x) > 0 else 0.0
     
-    # 2. Energia em Alta Frequência (Frequências acima de 5 kHz)
     indices_high = np.where(xf > 5000.0)[0]
     energy_high = round(np.sum(yf[indices_high]**2), 4) if len(indices_high) > 0 else 0.0
     
-    # Extrair timestamp a partir do nome do ficheiro (Formato IMS: YYYY.MM.DD.HH.MM.SS)
     file_name = os.path.basename(file_path)
     try:
         timestamp = datetime.strptime(file_name, "%Y.%m.%d.%H.%M.%S")
@@ -108,33 +102,53 @@ def process_ims_dataset():
         
     print(f"Foram encontrados {len(file_list)} ficheiros para processar.")
     
+    # Primeiro passo: Extrair features de todos os ficheiros de forma agnóstica a rótulos
     features_list = []
-    
     for idx, file_path in enumerate(file_list):
         features = extract_features_from_file(file_path)
         if features is not None:
-            # Rotulagem semântica rigorosa para a matriz fatorial de Concept Drift
-            if idx < 500:
-                features["Scenario"] = "D0_Baseline"
-            elif idx < 750:
-                features["Scenario"] = "D1_Ligeiro"
-            else:
-                features["Scenario"] = "D5_Catastrofico"
-                
             features_list.append(features)
-            
-        if idx % 100 == 0 and idx > 0:
-            print(f"Processados {idx}/{len(file_list)} ficheiros...")
+        if idx % 200 == 0 and idx > 0:
+            print(f"Extraídas features de {idx}/{len(file_list)} ficheiros...")
 
-    # Gerar DataFrame estruturado
-    final_df = pd.DataFrame(features_list)
+    # Converter para DataFrame preliminar para aplicar as regras industriais
+    temp_df = pd.DataFrame(features_list)
     
-    # Guardar no diretório do CWRU / IMS unificado
+    # --- DETERMINAÇÃO DINÂMICA DE LIMITES (ABORDAGEM NORMATIVA ISO) ---
+    # Usamos os primeiros 100 pontos (fase estável inicial comprovada) para fixar o RMS nominal de referência
+    rms_nominal = temp_df["AccX_RMS"].iloc[:100].mean()
+    
+    # Definição de zonas de severidade baseadas no incremento de energia (Critério ISO Adaptado para Aceleração)
+    # Limiar Alerta (Zona B/C): Multiplicação de 1.5x do nível base estável
+    # Limiar Alarme/Crítico (Zona C/D): Multiplicação de 2.5x do nível base estável
+    LIMIAR_ALERTA = rms_nominal * 1.5
+    LIMIAR_CRITICO = rms_nominal * 2.5
+    
+    print(f"\n[FÍSICA DO SINAL] RMS Nominal Base: {rms_nominal:.4f}")
+    print(f"[ISO 10816 Adaptado] Limiar para D1_Ligeiro (Alerta > 1.5x): {LIMIAR_ALERTA:.4f}")
+    print(f"[ISO 10816 Adaptado] Limiar para D5_Catastrofico (Crítico > 2.5x): {LIMIAR_CRITICO:.4f}")
+    
+    scenarios = []
+    for current_rms in temp_df["AccX_RMS"]:
+        if current_rms < LIMIAR_ALERTA:
+            scenarios.append("D0_Baseline")
+        elif current_rms < LIMIAR_CRITICO:
+            scenarios.append("D1_Ligeiro")
+        else:
+            scenarios.append("D5_Catastrofico")
+            
+    temp_df["Scenario"] = scenarios
+
+    # Contagem final dos estados gerados pela dinâmica real do rolamento
+    print("\nDistribuição final dos cenários baseada no comportamento físico:")
+    print(temp_df["Scenario"].value_counts())
+    
+    # Guardar o dataset final
     os.makedirs(PROCESSED_DATA_DIR, exist_ok=True)
     output_path = os.path.join(PROCESSED_DATA_DIR, "ims_bearing1_features.csv")
-    final_df.to_csv(output_path, index=False)
+    temp_df.to_csv(output_path, index=False)
     
-    print(f"\n=== SUCESSO: Dataset espectral avançado guardado em: {output_path} ===")
+    print(f"\n=== SUCESSO: Dataset validado por critérios físicos guardado em: {output_path} ===")
 
 if __name__ == "__main__":
     process_ims_dataset()

@@ -1,0 +1,26 @@
+[
+    {
+        "modelo": "One-Class SVM",
+        "f1_score": 0.4646,
+        "f1_ic95": 0.0,
+        "latencia_inferencia_ms": 0.0015,
+        "far_percentagem": 90.85,
+        "tempo_retreino_ms": 0.45
+    },
+    {
+        "modelo": "Isolation Forest",
+        "f1_score": 0.438,
+        "f1_ic95": 0.0112,
+        "latencia_inferencia_ms": 0.0217,
+        "far_percentagem": 93.55,
+        "tempo_retreino_ms": 121.02
+    },
+    {
+        "modelo": "Local Outlier Factor",
+        "f1_score": 0.5659,
+        "f1_ic95": 0.0,
+        "latencia_inferencia_ms": 0.0119,
+        "far_percentagem": 79.08,
+        "tempo_retreino_ms": 1.28
+    }
+]

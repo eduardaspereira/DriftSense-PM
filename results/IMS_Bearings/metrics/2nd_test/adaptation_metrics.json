@@ -1,0 +1,26 @@
+{
+    "A0_None": {
+        "f1_score": 0.9158,
+        "f1_ic95": 0.0,
+        "retrains": 0.0,
+        "vetos_triggered": 0.0,
+        "bytes_transmitted_kb": 0.0,
+        "energia_mj": 0.0
+    },
+    "A1_Periodic": {
+        "f1_score": 0.6436,
+        "f1_ic95": 0.0,
+        "retrains": 11.0,
+        "vetos_triggered": 0.0,
+        "bytes_transmitted_kb": 30.08,
+        "energia_mj": 88.6
+    },
+    "A2_Lightweight_Veto": {
+        "f1_score": 0.4671,
+        "f1_ic95": 0.0019,
+        "retrains": 20.0,
+        "vetos_triggered": 16.0,
+        "bytes_transmitted_kb": 0.0,
+        "energia_mj": 214.79
+    }
+}
