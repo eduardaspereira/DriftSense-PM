@@ -7,6 +7,4 @@ Coisas que temos de adicionar/corrigir no artigo:
 - Colocar o artigo com 6 paginas 
 -
 
---
-
---
+- ver tabalhao futuro
