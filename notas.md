@@ -5,3 +5,8 @@ Coisas que temos de adicionar/corrigir no artigo:
 - Falta abordarmos na Secção III.B : Frequência de amostragem, Tamanho da Janela, Sobreposição (Overlap), FFT, Normalização (escalonamento StandarScaler)
 
 - Colocar o artigo com 6 paginas 
+-
+
+--
+
+--
