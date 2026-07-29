@@ -33,5 +33,3 @@ Coisas que temos de adicionar/corrigir no artigo:
             - Streaming Continual Industrial Learning (possivelmente enviavel na Edge) / Nominal Anchor Rehearsal (NAR - Repetição de Memória Episódica)
 
 -
-
--
