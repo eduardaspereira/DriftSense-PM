@@ -31,3 +31,7 @@ Coisas que temos de adicionar/corrigir no artigo:
         - Solução
 
             - Streaming Continual Industrial Learning (possivelmente enviavel na Edge) / Nominal Anchor Rehearsal (NAR - Repetição de Memória Episódica)
+
+
+
+- enviar ao prof
