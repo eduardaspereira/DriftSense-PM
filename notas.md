@@ -32,7 +32,7 @@ Coisas que temos de adicionar/corrigir no artigo:
 
             - Streaming Continual Industrial Learning (possivelmente enviavel na Edge) / Nominal Anchor Rehearsal (NAR - Repetição de Memória Episódica)
 
-- o prof vai verificar o artigo
+- o prof vai verificar o artigo e temos de esperar para fazer uma v2 do draft mais forte dq a primeira
 
 - Melhorias:
 
