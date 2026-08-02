@@ -34,4 +34,4 @@ Coisas que temos de adicionar/corrigir no artigo:
 
 
 
-- enviar ao prof flavio
+- enviar ao prof flavio para ele dar feedback
