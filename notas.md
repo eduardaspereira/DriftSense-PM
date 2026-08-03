@@ -61,3 +61,6 @@ Coisas que temos de adicionar/corrigir no artigo:
         - Comparação do Baseline: A Figura 3 e a respetiva análise referem que o consumo de energia cumulativo do modelo A0 (sem adaptação) é de 223.32 J, e o do modelo A2 é de 223.73 J.
 
         - Ação: Seria interessante adicionar uma breve discussão sobre se o ligeiro aumento de 0.41 J tem alguma significância estatística ao longo de múltiplos ciclos de teste ou se é apenas ruído térmico/elétrico residual.
+
+
+    - commit 
