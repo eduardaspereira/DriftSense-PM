@@ -62,3 +62,4 @@ Coisas que temos de adicionar/corrigir no artigo:
 
         - Ação: Seria interessante adicionar uma breve discussão sobre se o ligeiro aumento de 0.41 J tem alguma significância estatística ao longo de múltiplos ciclos de teste ou se é apenas ruído térmico/elétrico residual.
 
+- 
