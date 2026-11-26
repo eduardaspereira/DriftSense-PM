@@ -61,7 +61,8 @@ class FNIRSIPowerMeter:
         self.is_fnb58_or_fnb48s = False
         self.ep_in = None
         self.ep_out = None
-        self.start_time = None
+        self.start_time = None      # início da captura (duration_sec)
+        self.last_refresh = None    # último keep-alive (antes partilhava start_time -> bug)
         self.energy_accumulated = 0.0
         self.capacity_accumulated = 0.0
         self.sample_count = 0
@@ -131,6 +132,7 @@ class FNIRSIPowerMeter:
         
         self._request_data()
         self.start_time = time.time()
+        self.last_refresh = self.start_time
         print(f"Comunicação iniciada ({self.os_name}). Começando captura de dados...")
     
     def _try_detach_kernel_driver(self):
@@ -233,10 +235,10 @@ class FNIRSIPowerMeter:
     def keep_alive(self):
         """Manter comunicação ativa (refresh periódico)"""
         refresh = 1.0 if self.is_fnb58_or_fnb48s else 0.003
-        if time.time() - self.start_time > refresh:
+        if time.time() - self.last_refresh > refresh:
             try:
                 self.ep_out.write(b"\xaa\x83" + b"\x00" * 61 + b"\x9e")
-                self.start_time = time.time()
+                self.last_refresh = time.time()
             except:
                 pass
     

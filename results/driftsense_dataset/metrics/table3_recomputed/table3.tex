@@ -1,0 +1,11 @@
+\begin{tabular}{lcccccccc}
+\toprule
+Model & TP/FN/FP/TN & Prec.$_a$ & Rec.$_a$ & F1$_a$ & Spec. [95\% CI] & Bal. Acc. & Macro-F1 & MCC \\
+\midrule
+Isolation Forest & 59/536/0/24 & 1.000 & 0.099 & 0.180 & 1.000 [0.86, 1.00] & 0.550 & 0.131 & 0.065 \\
+Local Outlier Factor & 372/223/6/18 & 0.984 & 0.625 & 0.765 & 0.750 [0.53, 0.90] & 0.688 & 0.450 & 0.149 \\
+One-Class SVM (nu=0.01, gamma=scale) & 525/70/14/10 & 0.974 & 0.882 & 0.926 & 0.417 [0.22, 0.63] & 0.650 & 0.559 & 0.172 \\
+One-Class SVM (nu=0.05, gamma=auto) & 526/69/14/10 & 0.974 & 0.884 & 0.927 & 0.417 [0.22, 0.63] & 0.650 & 0.561 & 0.174 \\
+\bottomrule
+\end{tabular}
+% Support: 595 anomalous (D1--D4) / 24 normal (last 20\% of D0)

@@ -1,0 +1,5 @@
+Model,"true=-1,pred=-1 (TP)","true=-1,pred=+1 (FN)","true=+1,pred=-1 (FP)","true=+1,pred=+1 (TN)"
+Isolation Forest,59,536,0,24
+Local Outlier Factor,372,223,6,18
+"One-Class SVM (nu=0.01, gamma=scale)",525,70,14,10
+"One-Class SVM (nu=0.05, gamma=auto)",526,69,14,10
